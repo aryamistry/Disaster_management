@@ -1,0 +1,156 @@
+{
+  "model": "XGBClassifier",
+  "library_versions": {
+    "xgboost": "3.4.1",
+    "scikit_learn": "1.6.1",
+    "pandas": "2.2.3",
+    "numpy": "2.1.3"
+  },
+  "features": [
+    "elevation_m",
+    "slope_deg",
+    "aspect_deg",
+    "plan_curvature",
+    "profile_curvature",
+    "twi",
+    "dist_to_road_m",
+    "dist_to_stream_m",
+    "land_cover_code",
+    "rainfall_24h_mm",
+    "rainfall_3d_accum_mm",
+    "rainfall_7d_accum_mm",
+    "rainfall_intensity_mm_h",
+    "soil_moisture_pct",
+    "historical_landslide_density",
+    "soil_type_enc"
+  ],
+  "excluded_from_features": [
+    "district",
+    "hub_corridor",
+    "landslide_label",
+    "landslide_prob_score",
+    "latitude",
+    "longitude",
+    "risk_level",
+    "sample_id",
+    "state",
+    "state_enc",
+    "timestamp"
+  ],
+  "best_params": {
+    "subsample": 0.7,
+    "n_estimators": 250,
+    "min_child_weight": 3,
+    "max_depth": 3,
+    "learning_rate": 0.1,
+    "gamma": 0.3,
+    "colsample_bytree": 0.6
+  },
+  "split": {
+    "method": "chronological train / validation / final test (timestamp quantiles 0.60 / 0.80)",
+    "rows": {
+      "train": 3000,
+      "validation": 1000,
+      "final_test": 1000
+    },
+    "train_range": [
+      "2024-05-01 00:00:00+00:00",
+      "2024-07-28 17:00:00+00:00"
+    ],
+    "validation_range": [
+      "2024-07-28 18:00:00+00:00",
+      "2024-08-28 15:00:00+00:00"
+    ],
+    "final_test_range": [
+      "2024-08-28 16:00:00+00:00",
+      "2024-09-28 23:00:00+00:00"
+    ]
+  },
+  "tuning": {
+    "cv": "TimeSeriesSplit(n_splits=5)",
+    "scoring": "roc_auc",
+    "best_mean_cv_roc_auc": 0.9843373826409015,
+    "per_fold_roc_auc": [
+      0.983176788471436,
+      0.981154413791985,
+      0.9833600934170195,
+      0.9872359652095335,
+      0.9867596523145341
+    ]
+  },
+  "risk_thresholds": {
+    "selected_on": "validation set only",
+    "recall_targets": {
+      "critical_edge": 0.9,
+      "high_edge": 0.95,
+      "low_edge": 0.98
+    },
+    "edges": {
+      "low_edge": 0.18840375542640686,
+      "high_edge": 0.36473792791366577,
+      "critical_edge": 0.6132187247276306
+    },
+    "note": "First-pass, recall-targeted heuristic; not a validated disaster standard."
+  },
+  "metrics": {
+    "baseline_validation": {
+      "threshold": 0.5,
+      "roc_auc": 0.9858140514615334,
+      "pr_auc": 0.9891973986221095,
+      "accuracy": 0.931,
+      "landslide_recall": 0.9298561151079137,
+      "landslide_precision": 0.9451553930530164,
+      "landslide_f1": 0.9374433363553943
+    },
+    "tuned_validation_at_0.5": {
+      "threshold": 0.5,
+      "roc_auc": 0.9873614621816061,
+      "pr_auc": 0.990420843404899,
+      "accuracy": 0.935,
+      "landslide_recall": 0.9298561151079137,
+      "landslide_precision": 0.9521178637200737,
+      "landslide_f1": 0.9408553230209281
+    },
+    "validation_at_critical_edge": {
+      "threshold": 0.6132187247276306,
+      "roc_auc": 0.9873614621816061,
+      "pr_auc": 0.990420843404899,
+      "accuracy": 0.93,
+      "landslide_recall": 0.9010791366906474,
+      "landslide_precision": 0.9709302325581395,
+      "landslide_f1": 0.9347014925373134
+    },
+    "final_test_at_0.5": {
+      "threshold": 0.5,
+      "roc_auc": 0.9855253629784255,
+      "pr_auc": 0.9886105086470531,
+      "accuracy": 0.934,
+      "landslide_recall": 0.9312839059674503,
+      "landslide_precision": 0.9484346224677717,
+      "landslide_f1": 0.9397810218978102
+    },
+    "final_test_at_critical_edge": {
+      "threshold": 0.6132187247276306,
+      "roc_auc": 0.9855253629784255,
+      "pr_auc": 0.9886105086470531,
+      "accuracy": 0.925,
+      "landslide_recall": 0.9023508137432188,
+      "landslide_precision": 0.9596153846153846,
+      "landslide_f1": 0.9301025163094129
+    },
+    "leave_one_state_out_mean_recall": 0.9416860655218499
+  },
+  "historical_landslide_density_check": {
+    "pct_static_all_locations": 52.283281733746136,
+    "pct_static_multi_obs_locations": 4.714064914992272,
+    "corr_with_label_full": 0.04978242464523507,
+    "corr_with_label_earliest_25pct": 0.04328136090976642,
+    "status": "internal consistency check only; temporal provenance of source feature still requires confirmation against the original data-generation pipeline"
+  },
+  "caveats": [
+    "Dataset is a 2024 prototype dataset; all validation (chronological and geographic) is internal to it.",
+    "Reported metrics are NOT evidence of real-world performance.",
+    "Temporal provenance of historical_landslide_density must be confirmed against the original data-generation pipeline.",
+    "Risk-bucket thresholds must be re-validated against confirmed real incident outcomes."
+  ]
+}
