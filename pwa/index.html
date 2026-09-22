@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0a0f1a"/>
+  <meta name="description" content="NER Landslide Field Reporting — Submit geo-tagged hazard reports offline"/>
+  <title>Field Reporter | NER Landslide Warning</title>
+  <link rel="manifest" href="manifest.json"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0f1a; --card: #111827; --border: #1e2d45;
+      --text: #e8f0fe; --muted: #8ba3c7;
+      --accent: #3b82f6; --danger: #ef4444; --success: #22c55e;
+      --warning: #f97316;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .app { max-width: 480px; margin: 0 auto; padding: 16px; }
+    header { display: flex; align-items: center; gap: 12px; padding: 16px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+    header svg { width: 32px; height: 32px; flex-shrink: 0; }
+    header h1 { font-size: 1rem; font-weight: 700; line-height: 1.2; }
+    header p { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .offline-banner { background: rgba(249,115,22,0.15); border: 1px solid var(--warning); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: var(--warning); margin-bottom: 16px; display: none; }
+    .offline-banner.show { display: flex; align-items: center; gap: 8px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+    .card h2 { font-size: 0.85rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    label { font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 5px; }
+    input, select, textarea {
+      width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 10px 12px; font-size: 0.85rem; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    .field { margin-bottom: 14px; }
+    .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; margin-bottom: 8px; }
+    .location-row { display: flex; gap: 8px; }
+    .location-row input { flex: 1; }
+    .loc-btn { padding: 10px 14px; background: var(--border); border: 1px solid #2a3f5f; color: var(--muted); border-radius: 8px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
+    .loc-btn:hover { background: #2a3f5f; color: var(--text); }
+    .photo-preview { width: 100%; border-radius: 8px; margin-top: 10px; max-height: 200px; object-fit: cover; display: none; }
+    .queue-item { background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 0.78rem; }
+    .queue-item .type { font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+    .queue-item .meta { color: var(--muted); font-size: 0.7rem; margin-top: 4px; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; }
+    .badge-queued { background: rgba(249,115,22,0.15); color: var(--warning); }
+    .badge-synced { background: rgba(34,197,94,0.15); color: var(--success); }
+    .badge-fail { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; font-size: 0.82rem; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 9999; opacity: 0; transition: opacity 0.3s; }
+    .toast.show { opacity: 1; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    select option { background: #111827; }
+    .lang-row { display: flex; gap: 6px; margin-bottom: 16px; }
+    .lang-btn { padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--border); color: var(--muted); font-size: 0.72rem; cursor: pointer; }
+    .lang-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="offline-banner" id="offlineBanner">
+    📴 Offline — reports will be queued and synced when connectivity returns
+  </div>
+
+  <header>
+    <svg viewBox="0 0 40 40" fill="none">
+      <path d="M20 4L36 32H4L20 4Z" fill="#ef4444" opacity="0.8"/>
+      <path d="M20 12L30 28H10L20 12Z" fill="#f97316" opacity="0.8"/>
+      <circle cx="20" cy="22" r="3" fill="#fbbf24"/>
+    </svg>
+    <div>
+      <h1 id="title">NER Field Reporter</h1>
+      <p id="subtitle">Geo-tagged hazard reporting · Works offline</p>
+    </div>
+  </header>
+
+  <div class="lang-row">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('hi')">हिंदी</button>
+    <button class="lang-btn" onclick="setLang('mz')">Mizo</button>
+  </div>
+
+  <!-- Report Form -->
+  <div class="card">
+    <h2>📋 <span id="formTitle">Submit Hazard Report</span></h2>
+
+    <div class="field">
+      <label id="lblName">Your Name / ID</label>
+      <input type="text" id="reporterName" placeholder="Field Officer Name"/>
+    </div>
+
+    <div class="field">
+      <label id="lblType">Hazard Type</label>
+      <select id="reportType">
+        <option value="crack">🪨 Ground Crack / Fissure</option>
+        <option value="slope_movement">⛰ Slope Movement</option>
+        <option value="blocked_road">🛣 Road Blocked / Damaged</option>
+        <option value="flood">🌊 Flash Flood / Waterlogging</option>
+        <option value="other">⚠️ Other Hazard</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label id="lblLocation">Location (GPS)</label>
+      <div class="location-row">
+        <input type="number" id="lat" placeholder="Latitude" step="0.0001" value="27.38"/>
+        <input type="number" id="lng" placeholder="Longitude" step="0.0001" value="88.50"/>
+        <button class="loc-btn" onclick="getLocation()">📍 GPS</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label id="lblDesc">Description</label>
+      <textarea id="description" rows="3" placeholder="Describe what you observed (cracks, debris, water level...)"></textarea>
+    </div>
+
+    <div class="field">
+      <label id="lblPhoto">Photo (optional)</label>
+      <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="previewPhoto(this)"/>
+      <img id="photoPreview" class="photo-preview" alt="Preview"/>
+    </div>
+
+    <button class="btn btn-primary" id="submitBtn" onclick="submitReport()">
+      <span id="submitText">📤 Submit Report</span>
+    </button>
+  </div>
+
+  <!-- Queue Status -->
+  <div class="card" id="queueCard">
+    <h2>📦 <span id="queueTitle">Offline Queue</span> <span id="queueBadge" class="badge badge-queued" style="margin-left:8px;"></span></h2>
+    <div id="queueList">
+      <p style="color:var(--muted);font-size:0.78rem;">No queued reports</p>
+    </div>
+    <button class="btn btn-danger" id="syncBtn" onclick="syncQueue()" style="margin-top:12px;display:none;">
+      🔄 <span id="syncText">Sync Now</span>
+    </button>
+  </div>
+
+  <!-- Submitted Reports / Status Tracking -->
+  <div class="card">
+    <h2>📋 <span id="submittedTitle">My Reports &amp; Status</span>
+      <button onclick="refreshStatuses()" style="margin-left:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--border);color:var(--muted);font-size:0.68rem;cursor:pointer;" title="Refresh status from server">
+        🔄 Refresh
+      </button>
+    </h2>
+    <p style="font-size:0.68rem;color:var(--muted);margin-bottom:10px;">Track your submitted reports. Status updates as authorities review.</p>
+    <div id="submittedList">
+      <p style="color:var(--muted);font-size:0.78rem;">No submissions yet</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:3001/api';
+let lang = 'en';
+let isOnline = navigator.onLine;
+
+const i18n = {
+  en: {
+    title: 'NER Field Reporter',
+    subtitle: 'Geo-tagged hazard reporting · Works offline',
+    formTitle: 'Submit Hazard Report',
+    lblName: 'Your Name / ID',
+    lblType: 'Hazard Type',
+    lblLocation: 'Location (GPS)',
+    lblDesc: 'Description',
+    lblPhoto: 'Photo (optional)',
+    submitText: '📤 Submit Report',
+    queueTitle: 'Offline Queue',
+    submittedTitle: 'Recent Submissions',
+    syncText: 'Sync Now',
+  },
+  hi: {
+    title: 'NER फील्ड रिपोर्टर',
+    subtitle: 'जियो-टैग्ड खतरे की रिपोर्ट · ऑफ़लाइन काम करता है',
+    formTitle: 'खतरे की रिपोर्ट दर्ज करें',
+    lblName: 'आपका नाम / ID',
+    lblType: 'खतरे का प्रकार',
+    lblLocation: 'स्थान (GPS)',
+    lblDesc: 'विवरण',
+    lblPhoto: 'फ़ोटो (वैकल्पिक)',
+    submitText: '📤 रिपोर्ट भेजें',
+    queueTitle: 'ऑफ़लाइन कतार',
+    submittedTitle: 'हाल की रिपोर्टें',
+    syncText: 'अभी सिंक करें',
+  },
+  mz: {
+    title: 'NER Field Reporter',
+    subtitle: 'Geo-tag vanga danger report · Offline-ah hmusit',
+    formTitle: 'Lungphum Report Dah',
+    lblName: 'I hming / ID',
+    lblType: 'Danger lokal',
+    lblLocation: 'Hmun (GPS)',
+    lblDesc: 'Explain',
+    lblPhoto: 'Photo (a ngai lo)',
+    submitText: '📤 Report Thawn',
+    queueTitle: 'Offline Queue',
+    submittedTitle: 'A thar ber Report',
+    syncText: 'Sync Tih',
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach((b,i) => b.classList.toggle('active', ['en','hi','mz'][i]===l));
+  const t = i18n[l];
+  Object.keys(t).forEach(k => { const el = document.getElementById(k); if(el) el.textContent = t[k]; });
+}
+
+// Online/offline detection
+window.addEventListener('online', () => { isOnline = true; document.getElementById('offlineBanner').classList.remove('show'); syncQueue(); });
+window.addEventListener('offline', () => { isOnline = false; document.getElementById('offlineBanner').classList.add('show'); });
+if (!isOnline) document.getElementById('offlineBanner').classList.add('show');
+
+function getLocation() {
+  if (!navigator.geolocation) { showToast('GPS not available'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('lat').value = pos.coords.latitude.toFixed(6);
+      document.getElementById('lng').value = pos.coords.longitude.toFixed(6);
+      showToast('📍 Location captured!');
+    },
+    () => showToast('Could not get GPS. Enter manually.')
+  );
+}
+
+function previewPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('photoPreview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// IndexedDB for offline queue
+let db;
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('FieldReporterDB', 1);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('queue')) d.createObjectStore('queue', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('submitted')) d.createObjectStore('submitted', { keyPath: 'id' });
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e);
+  });
+}
+
+async function saveToQueue(report) {
+  db = db || await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('queue', 'readwrite');
+    tx.objectStore('queue').put(report);
+    tx.oncomplete = res;
+    tx.onerror = rej;
+  });
+}
+
+async function saveToSubmitted(report) {
+  db = db || await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('submitted', 'readwrite');
+    tx.objectStore('submitted').put(report);
+    tx.oncomplete = res;
+    tx.onerror = rej;
+  });
+}
+
+async function getQueue() {
+  db = db || await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('queue', 'readonly');
+    const req = tx.objectStore('queue').getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = rej;
+  });
+}
+
+async function removeFromQueue(id) {
+  db = db || await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('queue', 'readwrite');
+    tx.objectStore('queue').delete(id);
+    tx.oncomplete = res;
+    tx.onerror = rej;
+  });
+}
+
+async function getSubmitted() {
+  db = db || await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('submitted', 'readonly');
+    const req = tx.objectStore('submitted').getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = rej;
+  });
+}
+
+// FIX-2.1/2.3/2.4: Read photo into Base64 DataURL for offline storage.
+// IndexedDB supports Blob natively but Base64 is more universally serializable.
+// Returns null if no photo selected, throws with user-visible message if file too large.
+async function readPhotoAsBase64(input) {
+  const file = input.files[0];
+  if (!file) return null;
+
+  // FIX-2.4: Guard against excessively large images (>10MB) that could exhaust IDB quota
+  const MAX_BYTES = 10 * 1024 * 1024;
+  if (file.size > MAX_BYTES) {
+    throw new Error(`Photo is too large (${(file.size/1024/1024).toFixed(1)}MB). Please use a photo under 10MB.`);
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve({ dataUrl: e.target.result, name: file.name, type: file.type });
+    reader.onerror = () => reject(new Error('Failed to read photo'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function submitReport() {
+  const lat = parseFloat(document.getElementById('lat').value);
+  const lng = parseFloat(document.getElementById('lng').value);
+  if (!lat || !lng) { showToast('Please enter or capture your location'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  const txt = document.getElementById('submitText');
+  btn.disabled = true;
+  txt.innerHTML = '<span class="spinner"></span> Submitting...';
+
+  const report = {
+    id: crypto.randomUUID(),
+    lat, lng,
+    reporter_name: document.getElementById('reporterName').value || 'Anonymous',
+    report_type: document.getElementById('reportType').value,
+    description: document.getElementById('description').value,
+    submitted_at: new Date().toISOString(),
+    status: 'Received',
+    synced: false,
+  };
+
+  // FIX-2.1: Capture photo data upfront (needed for both online fallback and offline path)
+  let photoData = null;
+  const photoInput = document.getElementById('photoInput');
+  try {
+    photoData = await readPhotoAsBase64(photoInput);
+  } catch (photoErr) {
+    showToast('⚠️ ' + photoErr.message);
+    btn.disabled = false;
+    txt.textContent = i18n[lang].submitText;
+    return;
+  }
+
+  if (isOnline) {
+    try {
+      const fd = new FormData();
+      Object.keys(report).forEach(k => fd.append(k, report[k]));
+      // Attach photo directly from the file input for online submissions
+      const photoFile = photoInput.files[0];
+      if (photoFile) fd.append('photo', photoFile);
+
+      const r = await fetch(`${API}/reports`, { method: 'POST', body: fd });
+      const data = await r.json();
+      if (data.success) {
+        report.synced = true;
+        report.status = 'Received';
+        await saveToSubmitted(report);
+        showToast('✅ Report submitted successfully!');
+        resetForm();
+      } else throw new Error(data.error);
+    } catch (e) {
+      console.warn('Online submit failed, queuing with photo:', e);
+      // FIX-2.1: Store photo data so it survives the queue
+      if (photoData) report.photo_data = photoData;
+      await saveToQueue(report);
+      showToast('⚠️ Queued for sync (server error)');
+    }
+  } else {
+    // FIX-2.1: When offline, persist photo as Base64 in the queued record
+    if (photoData) report.photo_data = photoData;
+    await saveToQueue(report);
+    showToast('📦 Saved offline — will sync when connected');
+  }
+
+  btn.disabled = false;
+  txt.textContent = i18n[lang].submitText;
+  await renderQueue();
+  await renderSubmitted();
+}
+
+async function syncQueue() {
+  const queue = await getQueue();
+  if (queue.length === 0) return;
+  const syncBtn = document.getElementById('syncBtn');
+  const syncText = document.getElementById('syncText');
+  if (syncBtn) { syncBtn.disabled = true; syncText.innerHTML = '<span class="spinner"></span> Syncing...'; }
+
+  let synced = 0;
+  for (const report of queue) {
+    try {
+      const fd = new FormData();
+      // Append all fields except internal-only keys
+      const SKIP_KEYS = new Set(['synced', 'photo_data']);
+      Object.keys(report).forEach(k => { if (!SKIP_KEYS.has(k)) fd.append(k, report[k]); });
+      fd.append('offline_queued', '1');
+
+      // FIX-2.2: Reconstruct photo Blob from stored Base64 DataURL and attach it
+      if (report.photo_data) {
+        try {
+          const { dataUrl, name, type } = report.photo_data;
+          const res = await fetch(dataUrl);
+          const blob = await res.blob();
+          const file = new File([blob], name || 'photo.jpg', { type: type || 'image/jpeg' });
+          fd.append('photo', file);
+        } catch (photoErr) {
+          console.warn('Could not reconstruct queued photo, syncing without it:', photoErr);
+        }
+      }
+
+      const r = await fetch(`${API}/reports`, { method: 'POST', body: fd });
+      const data = await r.json();
+      if (data.success) {
+        await removeFromQueue(report.id);
+        report.synced = true;
+        await saveToSubmitted(report);
+        synced++;
+      }
+    } catch {}
+  }
+
+  if (synced > 0) showToast(`✅ Synced ${synced} report${synced>1?'s':''}`);
+  if (syncBtn) { syncBtn.disabled = false; syncText.textContent = i18n[lang].syncText; }
+  await renderQueue();
+  await renderSubmitted();
+}
+
+function resetForm() {
+  document.getElementById('description').value = '';
+  document.getElementById('photoInput').value = '';
+  document.getElementById('photoPreview').style.display = 'none';
+}
+
+async function renderQueue() {
+  const queue = await getQueue();
+  const el = document.getElementById('queueList');
+  const badge = document.getElementById('queueBadge');
+  const syncBtn = document.getElementById('syncBtn');
+  badge.textContent = queue.length > 0 ? queue.length : '';
+  syncBtn.style.display = queue.length > 0 && isOnline ? 'block' : 'none';
+  if (queue.length === 0) { el.innerHTML = '<p style="color:var(--muted);font-size:0.78rem;">No queued reports</p>'; return; }
+  el.innerHTML = queue.map(r => `
+    <div class="queue-item">
+      <div class="type">${r.report_type?.replace('_',' ')} <span class="badge badge-queued">Pending</span></div>
+      <div>${r.description || 'No description'}</div>
+      <div class="meta">📍 (${r.lat?.toFixed(3)}, ${r.lng?.toFixed(3)}) · ${new Date(r.submitted_at).toLocaleTimeString()}</div>
+    </div>
+  `).join('');
+}
+
+const STATUS_COLORS = { 'Received': '#3b82f6', 'Under Review': '#eab308', 'Verified': '#22c55e', 'Dismissed': '#6b7280' };
+const STATUS_ICONS  = { 'Received': '📥', 'Under Review': '🔍', 'Verified': '✅', 'Dismissed': '❌' };
+
+async function fetchServerStatus(id) {
+  if (!isOnline) return null;
+  try {
+    const r = await fetch(`${API}/reports/${id}`);
+    const data = await r.json();
+    return data.success ? data.data.status : null;
+  } catch { return null; }
+}
+
+async function refreshStatuses() {
+  const submitted = await getSubmitted();
+  if (submitted.length === 0) return;
+  showToast('🔄 Checking report statuses...');
+  let updated = 0;
+  for (const r of submitted) {
+    if (!r.synced) continue;
+    const status = await fetchServerStatus(r.id);
+    if (status && status !== r.serverStatus) {
+      r.serverStatus = status;
+      await saveToSubmitted(r);
+      updated++;
+    }
+  }
+  if (updated > 0) showToast(`✅ ${updated} status${updated>1?'es':''} updated`);
+  else showToast('All statuses up to date');
+  await renderSubmitted();
+}
+
+async function renderSubmitted() {
+  const submitted = await getSubmitted();
+  const el = document.getElementById('submittedList');
+  if (submitted.length === 0) { el.innerHTML = '<p style="color:var(--muted);font-size:0.78rem;">No submissions yet. Submit a report above.</p>'; return; }
+  el.innerHTML = submitted.slice().reverse().slice(0,10).map(r => {
+    const serverStatus = r.serverStatus || (r.synced ? 'Received' : null);
+    const statusColor = STATUS_COLORS[serverStatus] || '#6b7280';
+    const statusIcon = STATUS_ICONS[serverStatus] || '❓';
+    return `
+    <div class="queue-item" style="border-left:3px solid ${statusColor}22;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div class="type" style="margin-bottom:0;">${r.report_type?.replace('_',' ')}</div>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <span class="badge ${r.synced ? 'badge-synced' : 'badge-fail'}" style="font-size:0.6rem;">${r.synced ? '☁ Synced' : '💾 Local'}</span>
+          ${serverStatus ? `<span class="badge" style="background:${statusColor}22;color:${statusColor};font-size:0.6rem;">${statusIcon} ${serverStatus}</span>` : ''}
+        </div>
+      </div>
+      <div style="font-size:0.78rem;color:#aac;">${r.description || 'No description'}</div>
+      <div class="meta">📍 (${r.lat?.toFixed(3)}, ${r.lng?.toFixed(3)}) · ${new Date(r.submitted_at).toLocaleString()}</div>
+      <div class="meta" style="margin-top:4px;">
+        ${serverStatus === 'Received' ? 'ℹ️ Report received by authorities — pending review' : ''}
+        ${serverStatus === 'Under Review' ? '🔍 Your report is being actively reviewed by district officers' : ''}
+        ${serverStatus === 'Verified' ? '✅ Report verified — data is now contributing to risk scoring' : ''}
+        ${serverStatus === 'Dismissed' ? '❌ Report was reviewed and dismissed' : ''}
+        ${!serverStatus ? '💾 Saved locally — not yet synced to server' : ''}
+      </div>
+    </div>
+  `;}).join('');
+}
+
+function showToast(msg, duration = 3500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// Init
+(async () => {
+  await renderQueue();
+  await renderSubmitted();
+  // Auto-sync on load if online
+  if (isOnline) {
+    const q = await getQueue();
+    if (q.length > 0) await syncQueue();
+    // Also refresh statuses on load
+    await refreshStatuses();
+  }
+})();
+
+// FIX-4.2: Register service worker for offline-first capability
+// Wrapped in try/catch + feature check for graceful degradation (file:// context,
+// older browsers, or environments where SW is blocked will still show the form)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('[SW] Registered, scope:', reg.scope);
+      })
+      .catch(err => {
+        // Not a fatal error — the app still works without the SW (online mode)
+        console.warn('[SW] Registration failed (non-critical):', err);
+      });
+  });
+}
+</script>
+</body>
+</html>

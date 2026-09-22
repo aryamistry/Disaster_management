@@ -1,0 +1,34 @@
+{
+  "districts": [
+    {
+      "id": "D001",
+      "name": "East Sikkim",
+      "state": "Sikkim",
+      "center": [27.3314, 88.6138],
+      "population": 283583,
+      "roads": ["NH10", "NH310", "SH1"],
+      "villages": ["Rangpo", "Singtam", "Ranipool", "Tadong", "Pakyong"]
+    },
+    {
+      "id": "D002",
+      "name": "West Sikkim",
+      "state": "Sikkim",
+      "center": [27.2740, 88.1850],
+      "population": 154992,
+      "roads": ["NH510", "SH3", "SH5"],
+      "villages": ["Gyalshing", "Yuksom", "Tashiding", "Legship", "Dentam"]
+    }
+  ],
+  "grid_cells": [
+    {"id": "G001", "district": "D001", "lat": 27.3800, "lng": 88.5000, "slope_angle": 38.5, "elevation": 1420, "geology": "fractured_gneiss", "land_use": "forest", "historical_incidents": 4, "road_proximity_km": 0.8, "village_proximity_km": 1.2},
+    {"id": "G002", "district": "D001", "lat": 27.3500, "lng": 88.5500, "slope_angle": 42.1, "elevation": 1650, "geology": "schist", "land_use": "agricultural_terrace", "historical_incidents": 7, "road_proximity_km": 0.3, "village_proximity_km": 0.5},
+    {"id": "G003", "district": "D001", "lat": 27.3200, "lng": 88.5800, "slope_angle": 31.0, "elevation": 980, "geology": "alluvial", "land_use": "settlement", "historical_incidents": 2, "road_proximity_km": 0.1, "village_proximity_km": 0.0},
+    {"id": "G004", "district": "D001", "lat": 27.4100, "lng": 88.4800, "slope_angle": 45.8, "elevation": 2100, "geology": "fractured_gneiss", "land_use": "forest", "historical_incidents": 9, "road_proximity_km": 1.5, "village_proximity_km": 2.1},
+    {"id": "G005", "district": "D001", "lat": 27.2900, "lng": 88.6200, "slope_angle": 28.3, "elevation": 750, "geology": "alluvial", "land_use": "urban", "historical_incidents": 1, "road_proximity_km": 0.0, "village_proximity_km": 0.0},
+    {"id": "G006", "district": "D002", "lat": 27.3000, "lng": 88.2000, "slope_angle": 40.2, "elevation": 1800, "geology": "schist", "land_use": "forest", "historical_incidents": 5, "road_proximity_km": 2.0, "village_proximity_km": 3.0},
+    {"id": "G007", "district": "D002", "lat": 27.2600, "lng": 88.1700, "slope_angle": 36.7, "elevation": 1550, "geology": "fractured_gneiss", "land_use": "agricultural_terrace", "historical_incidents": 6, "road_proximity_km": 0.5, "village_proximity_km": 1.0},
+    {"id": "G008", "district": "D002", "lat": 27.2400, "lng": 88.2200, "slope_angle": 33.5, "elevation": 1200, "geology": "phyllite", "land_use": "mixed", "historical_incidents": 3, "road_proximity_km": 0.4, "village_proximity_km": 0.8},
+    {"id": "G009", "district": "D002", "lat": 27.3200, "lng": 88.1400, "slope_angle": 48.2, "elevation": 2450, "geology": "fractured_gneiss", "land_use": "barren", "historical_incidents": 11, "road_proximity_km": 3.0, "village_proximity_km": 4.5},
+    {"id": "G010", "district": "D002", "lat": 27.2100, "lng": 88.2500, "slope_angle": 22.1, "elevation": 620, "geology": "alluvial", "land_use": "settlement", "historical_incidents": 0, "road_proximity_km": 0.2, "village_proximity_km": 0.1}
+  ]
+}

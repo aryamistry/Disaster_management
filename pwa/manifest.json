@@ -1,0 +1,14 @@
+{
+  "name": "NER Landslide Field Reporter",
+  "short_name": "Field Reporter",
+  "description": "Offline-capable geo-tagged hazard reporting for NER landslide early warning",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0f1a",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
