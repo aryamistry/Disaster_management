@@ -1,40 +1,43 @@
 # Product Requirements Document (PRD)
 
-## AI-Based Early Warning & Landslide Risk Monitoring System — North Eastern Region (NER)
+## AI-Based Landslide & Flash Flood Early Warning System — Hilly States of India
 
-**Problem Statement ID:** 26001
-**Organization / Department:** Ministry of Development of North Eastern Region (MDoNER)
+**Problem Statement ID:** 26192
+**Organization / Department:** Ministry of Home Affairs
 **Category:** Software
 **Theme:** Disaster Management
-**Document Owner:** Parth Lalwani
+**Document Owner:** Briyona Sanghvi
 **Version:** 1.0 (Prototype / Hackathon Scope)
 **Status:** Draft
+
+> **Note:** This PRD defines DHARA AI (Dynamic Hazard Assessment & Risk Alerts), a generalized evolution of the earlier prototype, aligned to PSID 26192's problem statement: hyper-local landslide and flash-flood prediction across hilly areas. The current Sikkim dataset is a reference pilot; the architecture is designed to generalize to any hilly state.
 
 ---
 
 ## 1. Executive Summary
 
-The North Eastern Region (NER) of India faces recurring landslides, flash floods, road blockages, and slope failures driven by intense rainfall, fragile Himalayan geology, and unplanned hill cutting. Current monitoring is reactive and manual, leading to delayed emergency response and prolonged isolation of remote villages.
+Hilly areas across India face recurring landslides and flash floods that often strike with very short warning times, driven by intense rainfall, fragile geology, unplanned hill cutting, and saturated slopes. These sudden events cause significant loss of life and property, and today's early warning mechanisms are too coarse and reactive to support hyper-local prediction and timely evacuation.
 
-This PRD defines a **prototype** for an AI-powered platform that ingests rainfall, soil moisture, satellite, terrain, and historical landslide data; runs ML models to predict landslide risk; and delivers real-time, multilingual, low-bandwidth-friendly alerts to district administrations, disaster management authorities, and citizens — visualized on a GIS-based risk dashboard.
+This PRD defines a **prototype** for an AI-powered predictive system that integrates rainfall data, soil moisture sensors, slope stability models, historical landslide/flood inventories, and real-time IoT inputs to generate **hyper-local forecasts at the village or ward level** — giving authorities and communities sufficient lead time for evacuation and risk mitigation. Forecasts and alerts are delivered in real time, multilingual, low-bandwidth-friendly form to district administrations, disaster management authorities, and citizens, visualized on a GIS-based risk dashboard.
 
-**Prototype goal:** Demonstrate an end-to-end working slice — data ingestion → risk scoring → GIS dashboard → alert dispatch → citizen field reporting — for a limited pilot area (1–2 districts, e.g., parts of Mizoram or Sikkim, known landslide hotspots), using a mix of live/public APIs and simulated sensor data where real hardware isn't available.
+**Prototype goal:** Demonstrate an end-to-end working slice — multi-source data ingestion → composite risk scoring → village/ward-level GIS dashboard → hyper-local alert dispatch → citizen/field reporting — for a limited pilot area (1–2 districts, e.g., parts of Mizoram or Sikkim, known landslide and flash-flood hotspots), using a mix of live/public APIs and simulated IoT sensor data where real hardware isn't available.
 
 ---
 
 ## 2. Problem Statement
 
 ### 2.1 Background
-- NER's terrain and monsoon intensity make it highly landslide-prone; incidents disrupt road connectivity, damage infrastructure, and delay rescue operations.
-- Monitoring today relies on manual field reporting after the fact rather than predictive, real-time systems.
-- There is no unified platform combining rainfall, soil, satellite, and terrain data with AI to proactively flag high-risk zones before failure occurs.
+- Hilly states in India are highly vulnerable to landslides and flash floods, which often occur with very short warning times, resulting in significant loss of lives and property.
+- Hilly terrain and monsoon intensity create recurring landslides, flash floods, road blockages, and slope failures that disrupt connectivity and delay rescue operations.
+- Current early warning mechanisms are inadequate for **hyper-local** prediction — they operate at a coarse regional/district level rather than the village or ward level where evacuation decisions actually need to be made.
+- Monitoring today relies largely on manual field reporting after the fact rather than predictive, real-time systems, and there is no unified platform combining rainfall, soil moisture, slope stability, historical disaster inventories, and IoT sensor data with AI to proactively flag high-risk zones before failure occurs.
 
 ### 2.2 Core Problem
-Authorities and communities lack a **real-time, predictive, and accessible** early-warning system that works even in low-connectivity remote areas.
+Authorities and communities lack a **real-time, predictive, hyper-local (village/ward-level) early-warning system** — one that fuses rainfall, soil moisture, slope stability, historical landslide/flood data, and IoT sensor inputs, and that remains accessible in low-connectivity remote areas — to provide sufficient lead time for evacuation and disaster preparedness.
 
 ### 2.3 Who Is Affected
 - **District Disaster Management Authorities (DDMAs)** — need actionable, prioritized risk data.
-- **State Disaster Management Authorities (SDMAs) / NDMA / MDoNER** — need regional oversight and reporting.
+- **State Disaster Management Authorities (SDMAs) / NDMA** — need regional oversight and reporting.
 - **Local communities & villages** — need timely, understandable alerts in local languages.
 - **Field officials (PWD, Border Roads Organisation, police, revenue dept.)** — need a way to report ground conditions instantly.
 - **Emergency responders** — need prioritized road/connectivity status to plan response routes.
@@ -44,15 +47,15 @@ Authorities and communities lack a **real-time, predictive, and accessible** ear
 ## 3. Goals & Objectives
 
 ### 3.1 Prototype Objectives (Hackathon Scope)
-1. Ingest and fuse at least 3 real/simulated data sources (rainfall, soil moisture, terrain slope) into a unified risk model.
-2. Compute a landslide risk score per geographic grid cell / zone using a simple ML model.
-3. Visualize risk as a color-coded heatmap on an interactive GIS map.
-4. Trigger a simulated multi-channel alert (in-app + SMS-simulated) when risk crosses a threshold.
-5. Provide a citizen/field-officer mobile-web form to upload a geo-tagged photo report of cracks/slope movement, with offline queuing.
-6. Show a dashboard summarizing risk severity, affected roads/villages, and weather-linked forecast for the pilot district.
+1. Ingest and fuse at least 4 real/simulated data sources — rainfall, soil moisture (IoT), slope stability/terrain, and historical landslide/flood inventories — into a unified risk model.
+2. Compute a landslide/flash-flood risk score at **village/ward-level grid granularity** (not just district level) using a simple ML/rule-based model.
+3. Visualize risk as a color-coded heatmap on an interactive GIS map, zoomable to village/ward boundaries.
+4. Trigger a simulated multi-channel, hyper-local alert (in-app + SMS-simulated) when risk crosses a threshold, with enough lead time to demonstrate evacuation-window value.
+5. Provide a citizen/field-officer mobile-web form to upload a geo-tagged photo report of cracks/slope movement/rising water, with offline queuing, feeding back into the real-time IoT input stream.
+6. Show a dashboard summarizing risk severity, affected villages/wards/roads, lead-time-to-event estimate, and weather-linked forecast for the pilot district.
 
 ### 3.2 Long-Term Vision (Post-Prototype)
-- Full NER-wide coverage with live IMD/Bhuvan/Sentinel satellite integration.
+- Coverage across multiple hilly states with live IMD/Bhuvan/Sentinel satellite integration.
 - IoT sensor network deployment (soil moisture, tiltmeters, piezometers) on identified critical slopes.
 - Integration with NDMA's Sachet platform and state emergency operations centers (EOCs) for official alert dispatch.
 - Predictive model retraining pipeline using confirmed incident outcomes (feedback loop).
@@ -86,7 +89,7 @@ Authorities and communities lack a **real-time, predictive, and accessible** ear
 - Real IoT sensor hardware deployment.
 - Full satellite imagery processing pipeline (InSAR deformation analysis, etc.) — use derived/pre-processed data instead.
 - Government system integration (Sachet, EOC systems) — mocked interfaces only.
-- Full NER-wide coverage.
+- Full multi-state hilly-area coverage.
 - Production-grade security/compliance certification.
 
 ---
@@ -98,7 +101,7 @@ Authorities and communities lack a **real-time, predictive, and accessible** ear
 | **District Officer (Anita)** | DDMA official | Quick view of highest-risk zones, road status, who to notify |
 | **Field Inspector (Rahul)** | PWD/field staff | Fast way to report cracks/road damage from a remote site with poor signal |
 | **Village Resident (Local user)** | Community member | Simple, local-language alert on phone: "avoid this road / evacuate" |
-| **State/MDoNER Analyst (Nisha)** | Policy/planning | Aggregated trends, historical risk maps, infrastructure investment insights |
+| **State Disaster Management Analyst (Nisha)** | Policy/planning | Aggregated trends, historical risk maps, infrastructure investment insights |
 
 ---
 
@@ -112,7 +115,7 @@ Authorities and communities lack a **real-time, predictive, and accessible** ear
 - FR1.5: Provide an API endpoint to accept citizen-submitted geo-tagged reports (photo + notes + location + timestamp).
 
 ### FR2 — AI/ML Risk Prediction Engine
-- FR2.1: Compute a composite risk score (0–100 or Low/Medium/High/Critical) per grid cell, combining rainfall intensity, soil saturation proxy, slope angle, and historical incident density.
+- FR2.1: Compute a composite risk score (0–100 or Low/Medium/High/Critical) per grid cell sized to approximate a village/ward boundary, combining rainfall intensity, soil saturation proxy, slope angle, and historical incident density.
 - FR2.2: Recompute scores on new data ingestion (near real-time).
 - FR2.3: Flag zones crossing a configurable risk threshold for alert generation.
 - FR2.4: Log prediction inputs/outputs for later model evaluation.
@@ -153,7 +156,7 @@ Authorities and communities lack a **real-time, predictive, and accessible** ear
 | **Performance** | Dashboard interactions respond in <3s; risk recompute cycle completes within data-refresh interval |
 | **Availability** | Prototype target 95% uptime during demo; production target 99.5% |
 | **Offline Support** | Field-reporting PWA must function fully offline and sync opportunistically |
-| **Scalability** | Architecture should support scaling from 1–2 districts to full NER (8 states) without redesign |
+| **Scalability** | Architecture should support scaling from 1–2 districts to multiple hilly states without redesign |
 | **Localization** | UI and alerts support multiple languages; text externalized for easy translation |
 | **Accessibility** | Low-bandwidth-optimized UI (compressed assets, minimal data payloads) for rural connectivity |
 | **Security** | Role-based access control; encrypted data in transit (HTTPS); citizen data privacy safeguards |
@@ -273,11 +276,17 @@ RiskScore = w1*(RainfallIntensityNorm)
 
 ---
 
-## 15. Appendix — Alignment to Problem Statement Requirements
+## 15. Appendix — Alignment to Problem Statement Requirements (PSID 26192)
 
 | PS Requirement | Addressed By |
 |---|---|
-| Rainfall, soil moisture, satellite, terrain, historical data collection | FR1, Section 9 |
+| Rainfall data integration | FR1.1, Section 9 |
+| Soil moisture sensors | FR1.3, Section 9 |
+| Slope stability models | FR1.2, Section 10 |
+| Historical landslide/flood inventories | FR1.4, Section 9 |
+| Real-time IoT inputs | FR1.3, FR5.1 (citizen/field reports as supplementary real-time signal) |
+| Hyper-local forecasts at village/ward level | FR2.1–FR2.3, Section 10 (grid-cell scoring sized to village/ward) |
+| Actionable lead time for evacuation & preparedness | FR4, Section 11 (System Flow), Success Metrics (Section 3.3) |
 | AI/ML risk identification & prediction | FR2, Section 10 |
 | Real-time alerts to authorities/communities | FR4 |
 | GIS mapping visualization | FR3 |

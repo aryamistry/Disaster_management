@@ -7,8 +7,8 @@ const THRESHOLD_KEYS = ['risk_threshold_medium', 'risk_threshold_high', 'risk_th
 const THRESHOLD_LABELS = { risk_threshold_medium: 'Medium Risk Threshold', risk_threshold_high: 'High Risk Threshold', risk_threshold_critical: 'Critical Risk Threshold' };
 const THRESHOLD_COLORS = { risk_threshold_medium: '#eab308', risk_threshold_high: '#f97316', risk_threshold_critical: '#ef4444' };
 
-const SOURCE_ICONS = { simulated: '🤖', api: '🌐', static: '📂', live: '📡' };
-const SOURCE_COLORS = { Active: '#22c55e', Proxied: '#3b82f6', Simulated: '#3b82f6', Loaded: '#8b5cf6', Error: '#ef4444' };
+const SOURCE_ICONS = { simulated: '🤖', api: '🌐', static: '📂', live: '📡', ml: '🧠' };
+const SOURCE_COLORS = { Active: '#22c55e', Proxied: '#3b82f6', Simulated: '#3b82f6', Loaded: '#8b5cf6', Error: '#ef4444', Unavailable: '#f97316' };
 
 function formatTime(ts) {
   if (!ts) return 'N/A';
@@ -75,7 +75,13 @@ export default function AdminPanel({ onClose }) {
               ) : (
                 <>
                   {/* Risk Thresholds */}
-                  <div className="admin-section-title">🎯 Risk Level Thresholds (0–100)</div>
+                  <div className="admin-section-title">🎯 Risk Level Thresholds (0–100) · SIH 26192</div>
+                  <div style={{marginBottom:10,padding:'10px 14px',background:'rgba(56,189,248,0.08)',border:'1px solid rgba(56,189,248,0.3)',borderRadius:8,fontSize:'0.75rem',color:'#bae6fd'}}>
+                    ⚡ <strong>XGBoost 22-Feature Engine Active (SIH 26192)</strong><br/>
+                    • <strong>Decision Threshold:</strong> <code>0.460</code> (Frozen on validation)<br/>
+                    • <strong>Test Results:</strong> Precision: <strong>92.28%</strong> | Recall: <strong>97.17%</strong> | F1: <strong>94.66%</strong> | Accuracy: <strong>95.87%</strong> | ROC-AUC: <strong>0.9941</strong><br/>
+                    • <strong>Risk Classification:</strong> Low &lt; 28% · Moderate 28–46% · High 46–75% (Alert Trigger) · Critical ≥ 75%
+                  </div>
                   {THRESHOLD_KEYS.map(k => (
                     <div key={k} className="config-row">
                       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
@@ -208,6 +214,51 @@ export default function AdminPanel({ onClose }) {
                       </div>
                     ))}
                   </div>
+
+                  {/* ML Model Detail Card */}
+                  {(() => {
+                    const mlSrc = health.sources?.find(s => s.type === 'ml');
+                    if (!mlSrc) return null;
+                    return (
+                      <div style={{marginTop:16}}>
+                        <div className="admin-section-title">🧠 ML Model Info</div>
+                        <div style={{padding:'12px 16px',background:'rgba(139,92,246,0.08)',border:'1px solid rgba(139,92,246,0.25)',borderRadius:10}}>
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                            <div style={{fontSize:'0.85rem',fontWeight:700,color:'#a78bfa'}}>XGBoost Landslide Risk Model v2</div>
+                            <span style={{fontSize:'0.7rem',padding:'2px 8px',borderRadius:20,background:mlSrc.status==='Active'?'rgba(34,197,94,0.15)':'rgba(249,115,22,0.15)',color:mlSrc.status==='Active'?'#22c55e':'#f97316',fontWeight:600}}>
+                              {mlSrc.status === 'Active' ? '🟢 Active' : '🟠 Unavailable (Fallback)'}
+                            </span>
+                          </div>
+                          {mlSrc.status === 'Active' && (
+                            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:12}}>
+                              {[
+                                ['ROC-AUC', mlSrc.roc_auc ? (mlSrc.roc_auc * 100).toFixed(1) + '%' : 'N/A'],
+                                ['Accuracy', mlSrc.accuracy ? (mlSrc.accuracy * 100).toFixed(1) + '%' : 'N/A'],
+                                ['Recall', mlSrc.recall ? (mlSrc.recall * 100).toFixed(1) + '%' : 'N/A'],
+                              ].map(([lbl, val]) => (
+                                <div key={lbl} style={{textAlign:'center',padding:'6px 8px',background:'rgba(255,255,255,0.04)',borderRadius:6}}>
+                                  <div style={{fontSize:'0.85rem',fontWeight:800,color:'#e2e8f0'}}>{val}</div>
+                                  <div style={{fontSize:'0.62rem',color:'var(--text-muted)'}}>{lbl}</div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* Model Caveats — always visible per PRD §9 */}
+                          <div style={{fontSize:'0.7rem',fontWeight:600,color:'#fbbf24',marginBottom:4}}>⚠️ Model Caveats (PRD §9)</div>
+                          <ul style={{margin:0,paddingLeft:16,display:'flex',flexDirection:'column',gap:3}}>
+                            {(mlSrc.caveats || [
+                              'Dataset is a 2024 prototype; validation is internal only.',
+                              'Reported metrics are NOT evidence of real-world performance.',
+                              'Temporal provenance of historical_landslide_density unconfirmed.',
+                              'Risk-bucket thresholds must be re-validated against real incidents.',
+                            ]).map((c, i) => (
+                              <li key={i} style={{fontSize:'0.68rem',color:'var(--text-secondary)',lineHeight:1.5}}>{c}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </>
               )}
             </div>

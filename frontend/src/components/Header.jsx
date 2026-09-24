@@ -1,14 +1,11 @@
-import { useState } from 'react';
 import { useApp } from '../context/AppContext.jsx';
-import AdminPanel from './AdminPanel.jsx';
-
-const LANG_LABELS = { en: 'EN', hi: 'हि', mz: 'MZ' };
 
 export default function Header() {
-  const { language, setLanguage, summary, alerts } = useApp();
-  const [showAdmin, setShowAdmin] = useState(false);
+  const { language, setLanguage, alerts, users, navigate } = useApp();
   const activeAlerts = alerts.filter(a => a.status === 'Active');
-  const criticalCount = activeAlerts.filter(a => a.risk_level === 'Critical').length;
+  const rawRole = users[0]?.role;
+  const role = rawRole === 'admin' ? 'Administrator' : rawRole?.replaceAll('_', ' ') || 'role unavailable';
+  const initials = users[0]?.name?.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase() || '--';
 
   return (
     <>
@@ -21,43 +18,19 @@ export default function Header() {
             <path d="M2 36h36" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round"/>
           </svg>
           <div>
-            <div className="header-title">
-              NER Landslide Warning System
-              <span>MDoNER · Problem Statement 26001 · Pilot: Sikkim</span>
-            </div>
+            <div className="header-title">DHARA AI<span>Dynamic Hazard Assessment &amp; Risk Alerts</span></div>
           </div>
         </div>
         <div className="header-spacer" />
-        <div className="header-pills">
-          {criticalCount > 0 && (
-            <span className="pill badge-critical pill-pulse">⚡ {criticalCount} CRITICAL</span>
-          )}
-          {activeAlerts.length > 0 && (
-            <span className="pill badge-high">{activeAlerts.length} Active Alert{activeAlerts.length !== 1 ? 's' : ''}</span>
-          )}
-          {summary && (
-            <span className="pill" style={{background:'var(--border)', color:'var(--text-secondary)'}}>
-              🌧 Last refresh: {new Date(summary.last_updated).toLocaleTimeString()}
-            </span>
-          )}
+        <div className="helpline-strip"><strong>Emergency</strong><span>112</span><span>Ambulance <b>108</b></span><span>State <b>1070</b></span><span>Control <b>1077</b></span><span>Police <b>100</b></span></div>
+        <div className="header-actions">
+          <select aria-label="Language" value={language} onChange={e => setLanguage(e.target.value)}><option value="en">EN</option><option value="hi">HI</option><option value="mz">MZ</option></select>
+          <button className="icon-button" aria-label={`Notifications, ${activeAlerts.length} active alerts`} title="Open alerts" onClick={() => navigate('Alerts')}>♢{activeAlerts.length > 0 && <span>{activeAlerts.length}</span>}</button>
+          <button className="user-chip user-chip-button" onClick={() => navigate('Admin')} title="Open Admin settings" aria-label="Open Admin settings">
+            <span className="avatar">{initials}</span><span>{role}</span>
+          </button>
         </div>
-        <div style={{display:'flex', gap:'4px', marginLeft:'12px'}}>
-          {Object.entries(LANG_LABELS).map(([code, label]) => (
-            <button key={code} className={`lang-btn ${language === code ? 'active' : ''}`} onClick={() => setLanguage(code)}>
-              {label}
-            </button>
-          ))}
-        </div>
-        <button
-          id="admin-panel-btn"
-          className="admin-open-btn"
-          onClick={() => setShowAdmin(true)}
-          title="Admin Configuration"
-        >
-          ⚙️ Admin
-        </button>
       </header>
-      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
     </>
   );
 }

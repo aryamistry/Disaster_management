@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="theme-color" content="#0a0f1a"/>
-  <meta name="description" content="NER Landslide Field Reporting — Submit geo-tagged hazard reports offline"/>
-  <title>Field Reporter | NER Landslide Warning</title>
+  <meta name="theme-color" content="#F5F7F9"/>
+  <meta name="description" content="DHARA AI field reporting — submit geo-tagged hazard reports offline"/>
+  <title>Field Reporter | DHARA AI</title>
   <link rel="manifest" href="manifest.json"/>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -59,10 +59,53 @@
     .lang-row { display: flex; gap: 6px; margin-bottom: 16px; }
     .lang-btn { padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--border); color: var(--muted); font-size: 0.72rem; cursor: pointer; }
     .lang-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Dashboard-aligned light field-report UI. The existing IDs and handlers below remain unchanged. */
+    :root {
+      --bg: #F5F7F9; --card: #FFFFFF; --border: #E2E6EA;
+      --text: #1A2430; --muted: #5B6B78; --faint: #8B99A5;
+      --accent: #1D4E7A; --danger: #C33A3A; --success: #2F7D52;
+      --warning: #A66F0B;
+    }
+    body { background: var(--bg); color: var(--text); }
+    .app { max-width: 720px; padding: 20px 16px 40px; }
+    header { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+    header h1 { font-family: Georgia, 'Times New Roman', serif; color: var(--text); }
+    header p, label, .meta, .offline-banner, .queue-item, .card p { color: var(--muted); }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: .75rem; font-weight: 700; text-decoration: none; margin: 0 0 14px 2px; }
+    .back-link:hover { text-decoration: underline; }
+    .offline-banner { background: #fff6df; border-color: #d5ad58; color: #805b08; border-radius: 5px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 20px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+    .card h2 { color: var(--text); font-size: .95rem; border-bottom: 1px solid #ECEFF2; padding-bottom: 12px; }
+    input, select, textarea { background: #fff; border: 1px solid #C9D2D9; color: var(--text); border-radius: 4px; padding: 11px 12px; }
+    input::placeholder, textarea::placeholder { color: var(--faint); }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(29,78,122,.12); }
+    .btn { border-radius: 4px; box-shadow: none; }
+    .btn-primary { background: var(--accent); }
+    .btn-primary:hover { transform: none; box-shadow: 0 3px 10px rgba(29,78,122,.2); }
+    .btn-danger { background: var(--danger); }
+    .loc-btn { background: #edf3f7; border-color: #b9c7d0; color: var(--accent); border-radius: 4px; }
+    .lang-row { background: #edf3f7; padding: 4px; border-radius: 4px; width: fit-content; }
+    .lang-btn { background: transparent; border: 0; color: var(--muted); border-radius: 3px; }
+    .lang-btn.active { background: var(--accent); color: #fff; }
+    .queue-item { background: #f7f9fa; border-color: var(--border); }
+    .badge-queued { background: #fff6df; color: #805b08; }
+    .badge-synced { background: #edf7f0; color: var(--success); }
+    .badge-fail { background: #fcebea; color: var(--danger); }
+    .toast { background: var(--card); color: var(--text); border-color: var(--border); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+    .photo-preview { border: 1px solid var(--border); }
+    @media (max-width: 520px) {
+      .app { padding: 10px 10px 28px; }
+      .card { padding: 15px; }
+      .location-row { flex-wrap: wrap; }
+      .location-row input { min-width: 0; flex: 1 1 42%; }
+      .loc-btn { flex: 1 1 100%; }
+    }
   </style>
 </head>
 <body>
 <div class="app">
+  <a class="back-link" href="/">← Back to DHARA AI Dashboard</a>
   <div class="offline-banner" id="offlineBanner">
     📴 Offline — reports will be queued and synced when connectivity returns
   </div>
@@ -74,8 +117,8 @@
       <circle cx="20" cy="22" r="3" fill="#fbbf24"/>
     </svg>
     <div>
-      <h1 id="title">NER Field Reporter</h1>
-      <p id="subtitle">Geo-tagged hazard reporting · Works offline</p>
+      <h1 id="title">DHARA AI Field Reporter</h1>
+      <p id="subtitle">Hilly-area hazard reporting · Works offline</p>
     </div>
   </header>
 
@@ -164,8 +207,8 @@ let isOnline = navigator.onLine;
 
 const i18n = {
   en: {
-    title: 'NER Field Reporter',
-    subtitle: 'Geo-tagged hazard reporting · Works offline',
+    title: 'DHARA AI Field Reporter',
+    subtitle: 'Hilly-area hazard reporting · Works offline',
     formTitle: 'Submit Hazard Report',
     lblName: 'Your Name / ID',
     lblType: 'Hazard Type',
@@ -178,8 +221,8 @@ const i18n = {
     syncText: 'Sync Now',
   },
   hi: {
-    title: 'NER फील्ड रिपोर्टर',
-    subtitle: 'जियो-टैग्ड खतरे की रिपोर्ट · ऑफ़लाइन काम करता है',
+    title: 'DHARA AI फील्ड रिपोर्टर',
+    subtitle: 'पहाड़ी क्षेत्रों की खतरे की रिपोर्ट · ऑफ़लाइन काम करता है',
     formTitle: 'खतरे की रिपोर्ट दर्ज करें',
     lblName: 'आपका नाम / ID',
     lblType: 'खतरे का प्रकार',
@@ -192,8 +235,8 @@ const i18n = {
     syncText: 'अभी सिंक करें',
   },
   mz: {
-    title: 'NER Field Reporter',
-    subtitle: 'Geo-tag vanga danger report · Offline-ah hmusit',
+    title: 'DHARA AI Field Reporter',
+    subtitle: 'Hilly area danger report · Offline-ah hmusit',
     formTitle: 'Lungphum Report Dah',
     lblName: 'I hming / ID',
     lblType: 'Danger lokal',

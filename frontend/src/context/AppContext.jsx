@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { getRiskScores, getRiskSummary, getActiveAlerts, getReports } from '../api.js';
+import { getRiskScores, getRiskSummary, getAlerts, getReports, getAdminDistricts, getGeoFeatures, getUsers, getHealthStatus } from '../api.js';
 
 const AppContext = createContext(null);
 
@@ -9,8 +9,15 @@ export function AppProvider({ children }) {
   const [summary, setSummary] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [reports, setReports] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [geoFeatures, setGeoFeatures] = useState({ road_corridors: [], village_positions: {} });
+  const [users, setUsers] = useState([]);
   const [selectedZone, setSelectedZone] = useState(null);
+  const [activeView, setActiveView] = useState('Overview');
+  const [focusGridId, setFocusGridId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [serviceStatus, setServiceStatus] = useState({ state: 'checking', label: 'Checking service' });
   const [toasts, setToasts] = useState([]);
   const [layers, setLayers] = useState({ heatmap: true, zones: true, roads: false, villages: true, alerts: true, reports: true });
   const wsRef = useRef(null);
@@ -26,9 +33,10 @@ export function AppProvider({ children }) {
   }, []);
 
   const fetchAll = useCallback(async () => {
+    setError(null);
     try {
-      const [scores, sum, acts, reps] = await Promise.all([
-        getRiskScores(), getRiskSummary(), getActiveAlerts(), getReports()
+      const [scores, sum, acts, reps, districtData, geoData, userData] = await Promise.all([
+        getRiskScores(), getRiskSummary(), getAlerts({ status: 'Active' }), getReports(), getAdminDistricts(), getGeoFeatures(), getUsers()
       ]);
       setRiskScores(scores || []);
       setSummary(sum);
@@ -41,15 +49,33 @@ export function AppProvider({ children }) {
       }
       setAlerts(acts || []);
       setReports(reps || []);
+      setDistricts(districtData || []);
+      setGeoFeatures(geoData || { road_corridors: [], village_positions: {} });
+      setUsers(userData || []);
     } catch (e) {
       console.error('Fetch error', e);
+      setError('Dashboard data could not be loaded. Check the backend service.');
     } finally {
       setLoading(false);
     }
   }, [addToast]);
 
+  const refreshHealth = useCallback(async () => {
+    try {
+      const health = await getHealthStatus();
+      setServiceStatus({ state: 'connected', label: health?.degraded_mode ? 'Connected · degraded' : 'Service connected' });
+    } catch {
+      setServiceStatus({ state: 'offline', label: 'Service unavailable' });
+    }
+  }, []);
+
   // Initial fetch
   useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => {
+    refreshHealth();
+    const healthPoll = setInterval(refreshHealth, 60000);
+    return () => clearInterval(healthPoll);
+  }, [refreshHealth]);
 
   // WebSocket for real-time updates
   useEffect(() => {
@@ -65,6 +91,7 @@ export function AppProvider({ children }) {
         wsRef.current = ws;
 
         ws.onopen = () => {
+          setServiceStatus(s => ({ ...s, state: 'connected', label: s.label === 'Service unavailable' ? 'Service connected' : s.label }));
           if (!active) {
             try { ws.close(); } catch {}
           }
@@ -86,6 +113,7 @@ export function AppProvider({ children }) {
         };
 
         ws.onclose = () => {
+          setServiceStatus(s => s.state === 'connected' ? { state: 'reconnecting', label: 'Reconnecting' } : s);
           if (active) {
             reconnectTimer = setTimeout(connect, 3000);
           }
@@ -124,9 +152,15 @@ export function AppProvider({ children }) {
   }, [fetchAll, addToast]);
 
   const toggleLayer = (key) => setLayers(l => ({ ...l, [key]: !l[key] }));
+  const navigate = useCallback((view) => setActiveView(view), []);
+  const focusGrid = useCallback((gridId) => {
+    setFocusGridId(gridId);
+    setActiveView('Live Map');
+  }, []);
+  const clearFocus = useCallback(() => setFocusGridId(null), []);
 
   return (
-    <AppContext.Provider value={{ language, setLanguage, riskScores, summary, alerts, reports, selectedZone, setSelectedZone, loading, toasts, layers, toggleLayer, fetchAll, addToast }}>
+    <AppContext.Provider value={{ language, setLanguage, riskScores, summary, alerts, reports, districts, geoFeatures, users, selectedZone, setSelectedZone, activeView, navigate, focusGridId, focusGrid, clearFocus, loading, error, serviceStatus, toasts, layers, toggleLayer, fetchAll, addToast }}>
       {children}
     </AppContext.Provider>
   );

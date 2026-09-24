@@ -44,7 +44,20 @@ app.use('/api/risk', riskRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'Landslide Warning System API', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    service: 'DHARA AI Flash Flood Early Warning System API (SIH 26192)',
+    model: 'XGBoost 22-Feature Ensemble',
+    threshold: 0.460,
+    test_metrics: {
+      accuracy: '95.87%',
+      precision: '92.28%',
+      recall: '97.17%',
+      f1: '94.66%',
+      roc_auc: '0.9941'
+    },
+    timestamp: new Date().toISOString()
+  });
 });
 
 // WebSocket connection
@@ -59,7 +72,7 @@ cron.schedule('*/15 * * * *', async () => {
   console.log('[CRON] Running sensor simulation & risk recompute...');
   try {
     simulateSensorFeed();
-    const scores = computeRiskScores();
+    const scores = await computeRiskScores();
     const firedAlerts = checkAndFireAlerts(scores);
     broadcast('RISK_UPDATE', { scores, alert_count: firedAlerts });
     console.log(`[CRON] Risk recomputed. ${firedAlerts} alert(s) fired.`);
@@ -72,14 +85,14 @@ cron.schedule('*/15 * * * *', async () => {
 const PORT = process.env.PORT || 3001;
 initDB();
 // Run initial simulation on startup
-setTimeout(() => {
+setTimeout(async () => {
   simulateSensorFeed();
-  const scores = computeRiskScores();
+  const scores = await computeRiskScores();
   checkAndFireAlerts(scores);
   console.log('[INIT] Initial risk scores computed');
 }, 1000);
 
 server.listen(PORT, () => {
-  console.log(`🚀 Landslide Warning API running on http://localhost:${PORT}`);
+  console.log(`🚀 DHARA AI Flash Flood Early Warning API (SIH 26192) running on http://localhost:${PORT}`);
   console.log(`📡 WebSocket server active on ws://localhost:${PORT}`);
 });

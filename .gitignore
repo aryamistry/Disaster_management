@@ -51,3 +51,8 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.log
+ml-service/venv/
+ml-service/predictions.log
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getLatestRiskScores, computeRiskScores, simulateSensorFeed } from '../services/riskEngine.js';
+import { getLatestRiskScores, computeRiskScores, simulateSensorFeed, getModelMetadata } from '../services/riskEngine.js';
 import { checkAndFireAlerts } from '../services/alertService.js';
 import { getDB } from '../db/database.js';
 import { broadcast } from '../server.js';
@@ -21,12 +21,45 @@ router.get('/scores', (req, res) => {
   }
 });
 
+// GET /api/risk/model-info — model metadata, test metrics, 22 feature list & threshold
+router.get('/model-info', (req, res) => {
+  try {
+    const metadata = getModelMetadata();
+    res.json({
+      success: true,
+      problem_statement: 'SIH26192',
+      model_type: 'XGBoost (xgb.XGBClassifier)',
+      threshold: metadata?.test_metrics?.threshold || 0.460,
+      test_metrics: metadata?.test_metrics || {
+        accuracy: 0.9587,
+        precision: 0.9228,
+        recall: 0.9717,
+        f1: 0.9466,
+        roc_auc: 0.9941,
+        pr_auc: 0.9902
+      },
+      features: metadata?.features || [
+        "elevation_m", "slope_deg", "aspect_deg", "plan_curvature", "profile_curvature", "twi",
+        "dist_to_stream_m", "land_cover_code", "soil_type_enc", "rainfall_1h_mm", "rainfall_3h_mm",
+        "rainfall_6h_mm", "rainfall_12h_mm", "rainfall_24h_mm", "rainfall_3d_accum_mm", "rainfall_7d_accum_mm",
+        "rainfall_intensity_mm_h", "soil_moisture_pct", "historical_landslide_density",
+        "rain_moisture_index", "slope_wetness_index", "rainfall_runoff_proxy"
+      ],
+      features_count: 22,
+      split_rows: metadata?.split_rows || { train: 3500, validation: 750, test: 750 }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // GET /api/risk/scores/district/:districtId
 router.get('/scores/district/:districtId', (req, res) => {
   const db = getDB();
   try {
     const scores = db.prepare(`
-      SELECT rs.*, gc.lat, gc.lng, gc.district, gc.slope_angle, gc.elevation
+      SELECT rs.*, gc.lat, gc.lng, gc.district, gc.slope_angle, gc.elevation,
+             gc.dist_to_stream_m, gc.twi
       FROM risk_scores rs
       JOIN grid_cells gc ON rs.grid_id = gc.id
       WHERE gc.district = ? AND rs.id IN (SELECT MAX(id) FROM risk_scores GROUP BY grid_id)
@@ -51,22 +84,33 @@ router.get('/history/:gridId', (req, res) => {
   }
 });
 
-// POST /api/risk/trigger — manually trigger risk recompute (for demo)
-router.post('/trigger', (req, res) => {
+// POST /api/risk/trigger — manually trigger cloudburst spike / recompute (for SIH demo)
+router.post('/trigger', async (req, res) => {
   try {
-    const { spike } = req.body; // optional: { spike: true } for demo rainfall spike
+    const { spike } = req.body;
     if (spike) {
-      // Inject a spike reading directly for demo
       const db = getDB();
-      const grids = db.prepare('SELECT id FROM grid_cells WHERE slope_angle > 35').all();
+      const grids = db.prepare('SELECT id FROM grid_cells WHERE dist_to_stream_m < 100').all();
       const now = new Date().toISOString();
       const insert = db.prepare(`
-        INSERT INTO sensor_readings(grid_id, timestamp, rainfall_1h_mm, rainfall_24h_mm, soil_moisture, temperature_c, humidity_pct, source)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO sensor_readings(
+          grid_id, timestamp, rainfall_1h_mm, rainfall_3h_mm, rainfall_6h_mm, rainfall_12h_mm,
+          rainfall_24h_mm, rainfall_3d_accum_mm, rainfall_7d_accum_mm, rainfall_intensity_mm_h,
+          soil_moisture, temperature_c, humidity_pct, source
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       db.exec('BEGIN');
       try {
-        for (const g of grids) insert.run(g.id, now, 55 + Math.random() * 30, 160 + Math.random() * 60, 0.88 + Math.random() * 0.10, 15, 95, 'demo_spike');
+        for (const g of grids) {
+          const r1h = 58 + Math.random() * 25;
+          const r3h = r1h + 45 + Math.random() * 30;
+          const r6h = r3h + 30;
+          const r12h = r6h + 25;
+          const r24h = r12h + 35;
+          const r3d = r24h + 60;
+          const r7d = r3d + 100;
+          insert.run(g.id, now, r1h, r3h, r6h, r12h, r24h, r3d, r7d, r1h * 1.15, 0.94, 16, 98, 'demo_cloudburst_spike');
+        }
         db.exec('COMMIT');
       } catch (txErr) {
         db.exec('ROLLBACK');
@@ -75,10 +119,10 @@ router.post('/trigger', (req, res) => {
     } else {
       simulateSensorFeed();
     }
-    const scores = computeRiskScores();
+    const scores = await computeRiskScores();
     const fired = checkAndFireAlerts(scores);
     broadcast('RISK_UPDATE', { scores, alert_count: fired });
-    res.json({ success: true, message: 'Risk recomputed', scores, alerts_fired: fired });
+    res.json({ success: true, message: 'Flash flood risk recomputed', scores, alerts_fired: fired });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -91,7 +135,7 @@ router.get('/summary', (req, res) => {
     const latest = getLatestRiskScores();
     const critical = latest.filter(s => s.risk_level === 'Critical').length;
     const high = latest.filter(s => s.risk_level === 'High').length;
-    const medium = latest.filter(s => s.risk_level === 'Medium').length;
+    const moderate = latest.filter(s => s.risk_level === 'Moderate' || s.risk_level === 'Medium').length;
     const low = latest.filter(s => s.risk_level === 'Low').length;
     const activeAlerts = db.prepare("SELECT COUNT(*) as c FROM alerts WHERE status='Active'").get()?.c || 0;
     const affectedRoads = db.prepare("SELECT COUNT(DISTINCT affected_roads) as c FROM alerts WHERE status='Active'").get()?.c || 0;
@@ -99,11 +143,16 @@ router.get('/summary', (req, res) => {
     res.json({
       success: true,
       data: {
-        risk_distribution: { critical, high, medium, low, total: latest.length },
+        risk_distribution: { critical, high, moderate, medium: moderate, low, total: latest.length },
         active_alerts: activeAlerts,
         affected_roads: affectedRoads,
         recent_citizen_reports: recentReports,
         highest_risk_zone: latest[0] || null,
+        decision_threshold: 0.460,
+        model_accuracy: '95.87%',
+        model_precision: '92.28%',
+        model_recall: '97.17%',
+        model_f1: '94.66%',
         last_updated: new Date().toISOString(),
       }
     });
@@ -124,21 +173,23 @@ router.get('/prioritization', (req, res) => {
       .filter(s => s.risk_level === 'Critical' || s.risk_level === 'High')
       .map(s => {
         const dist = districtMap[s.district];
-        const roadFactor = s.road_proximity_km < 0.5 ? 3.0 : s.road_proximity_km < 1.5 ? 2.0 : 1.0;
+        const streamFactor = (s.dist_to_stream_m && s.dist_to_stream_m < 60) ? 3.0 : (s.dist_to_stream_m < 150) ? 2.0 : 1.2;
+        const roadFactor = s.road_proximity_km < 0.5 ? 2.5 : s.road_proximity_km < 1.5 ? 1.8 : 1.0;
         const villageFactor = s.village_proximity_km < 1.0 ? 2.5 : s.village_proximity_km < 2.0 ? 1.5 : 1.0;
-        const priorityScore = parseFloat((s.composite_score * roadFactor * villageFactor / 100).toFixed(3));
+        const priorityScore = parseFloat((s.composite_score * streamFactor * villageFactor / 100).toFixed(3));
 
-        let action = 'Monitor';
-        if (s.risk_level === 'Critical' && s.road_proximity_km < 0.5) action = 'IMMEDIATE ROAD CLOSURE + EVACUATION';
-        else if (s.risk_level === 'Critical') action = 'Evacuate nearby villages, alert DDMA';
-        else if (s.risk_level === 'High' && s.road_proximity_km < 1.0) action = 'Road advisory + deploy inspection team';
-        else if (s.risk_level === 'High') action = 'Alert field officers, increase monitoring';
+        let action = 'Continuous river gauge monitoring';
+        if (s.risk_level === 'Critical' && s.dist_to_stream_m < 60) action = 'URGENT: RIVERBANK EVACUATION + CLOSE LOW-LYING BRIDGES';
+        else if (s.risk_level === 'Critical') action = 'Evacuate river terrace villages, deploy SDRF boats/teams';
+        else if (s.risk_level === 'High' && s.road_proximity_km < 1.0) action = 'Issue flash flood advisory + divert highway traffic';
+        else if (s.risk_level === 'High') action = 'Alert village heads, prepare relief shelters';
 
         return {
           ...s,
           priority_score: priorityScore,
           priority_tier: priorityScore >= 2.0 ? 'P1' : priorityScore >= 1.0 ? 'P2' : 'P3',
           district_name: dist?.name || s.district,
+          river_basin: dist?.river_basin || 'Local Catchment',
           nearby_roads: dist?.roads?.slice(0, 2).join(', ') || 'N/A',
           nearby_villages: dist?.villages?.slice(0, 3).join(', ') || 'N/A',
           recommended_action: action,

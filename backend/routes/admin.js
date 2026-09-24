@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { getDB } from '../db/database.js';
+import { mlHealth } from '../services/mlClient.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -54,7 +55,7 @@ router.get('/users', (req, res) => {
 });
 
 // GET /api/admin/health — data source health
-router.get('/health', (req, res) => {
+router.get('/health', async (req, res) => {
   const db = getDB();
   try {
     const lastSensor = db.prepare('SELECT MAX(timestamp) as ts FROM sensor_readings').get()?.ts;
@@ -62,6 +63,31 @@ router.get('/health', (req, res) => {
     const totalReadings = db.prepare('SELECT COUNT(*) as c FROM sensor_readings').get()?.c;
     const totalReports = db.prepare('SELECT COUNT(*) as c FROM citizen_reports').get()?.c;
     const activeAlerts = db.prepare("SELECT COUNT(*) as c FROM alerts WHERE status='Active'").get()?.c;
+
+    // ML model health (from ml-service /health — best effort, non-blocking)
+    const mlStatus = await mlHealth();
+
+    const mlCard = mlStatus
+      ? {
+          name: 'ML Model (XGBoost v2)',
+          status: 'Active',
+          last_sync: lastScore,
+          type: 'ml',
+          model_version: 'v2',
+          roc_auc: mlStatus.metrics?.roc_auc_final_test,
+          accuracy: mlStatus.metrics?.accuracy_final_test,
+          recall: mlStatus.metrics?.recall_final_test,
+          loaded_at: mlStatus.loaded_at,
+          caveats: mlStatus.caveats,
+        }
+      : {
+          name: 'ML Model (XGBoost v2)',
+          status: 'Unavailable',
+          last_sync: null,
+          type: 'ml',
+          note: 'ml-service is not running. Risk scoring is using rule-based fallback.',
+        };
+
     res.json({
       success: true,
       data: {
@@ -71,8 +97,11 @@ router.get('/health', (req, res) => {
           { name: 'DEM / Slope Data (SRTM)', status: 'Loaded', last_sync: null, type: 'static' },
           { name: 'Historical Landslide DB', status: 'Loaded', last_sync: null, type: 'static' },
           { name: 'Citizen Reports', status: 'Active', last_sync: new Date().toISOString(), type: 'live' },
+          mlCard,
         ],
-        stats: { total_readings: totalReadings, total_reports: totalReports, active_alerts: activeAlerts, last_risk_compute: lastScore }
+        stats: { total_readings: totalReadings, total_reports: totalReports, active_alerts: activeAlerts, last_risk_compute: lastScore },
+        ml_mode: mlStatus ? 'ml-xgboost-v2' : 'rule-based-fallback',
+        degraded_mode: !mlStatus,
       }
     });
   } catch (err) {

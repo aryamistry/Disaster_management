@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useApp } from '../context/AppContext.jsx';
@@ -14,18 +14,29 @@ L.Icon.Default.mergeOptions({
 });
 
 const RISK_COLORS = {
-  Critical: { fill: '#ef4444', border: '#dc2626', opacity: 0.75 },
-  High: { fill: '#f97316', border: '#ea580c', opacity: 0.65 },
-  Medium: { fill: '#eab308', border: '#ca8a04', opacity: 0.55 },
-  Low: { fill: '#22c55e', border: '#16a34a', opacity: 0.35 },
+  Critical: { fill: '#C33A3A', border: '#A72E2E', opacity: 0.75 },
+  High: { fill: '#C9622E', border: '#A94D20', opacity: 0.65 },
+  Medium: { fill: '#C98A1F', border: '#9C670F', opacity: 0.55 },
+  Low: { fill: '#3F8F5F', border: '#2F7048', opacity: 0.35 },
+};
+
+const MAP_STYLES = {
+  Map: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  Satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  Terrain: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
 };
 
 export default function RiskMap() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const layersRef = useRef({});
-  const { riskScores, reports, alerts, layers, setSelectedZone, selectedZone } = useApp();
+  const { riskScores, reports, alerts, layers, setSelectedZone, clearFocus, focusGridId, toggleLayer, addToast } = useApp();
   const [panelData, setPanelData] = useState(null);
+  const [mapStyle, setMapStyle] = useState('Map');
+  const [layersOpen, setLayersOpen] = useState(false);
+  const [zoneLoading, setZoneLoading] = useState(false);
+  const [zoneError, setZoneError] = useState(null);
+  const tileRef = useRef(null);
 
   // Initialize map
   useEffect(() => {
@@ -37,8 +48,7 @@ export default function RiskMap() {
       attributionControl: false,
     });
 
-    // Dark tile layer
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    tileRef.current = L.tileLayer(MAP_STYLES.Map, {
       attribution: '©OpenStreetMap ©CartoDB',
       maxZoom: 18,
     }).addTo(map);
@@ -48,6 +58,49 @@ export default function RiskMap() {
 
     mapInstanceRef.current = map;
   }, []);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current || !tileRef.current) return;
+    tileRef.current.setUrl(MAP_STYLES[mapStyle]);
+  }, [mapStyle]);
+
+  const selectZone = useCallback(async (score) => {
+    setSelectedZone(score);
+    setZoneLoading(true);
+    setZoneError(null);
+    try {
+      const [history, sensor] = await Promise.all([getRiskHistory(score.grid_id), getSensorReadings(score.grid_id)]);
+      setPanelData({ score, history, sensor });
+    } catch {
+      setPanelData({ score, history: [], sensor: [] });
+      setZoneError(`History and sensor data are unavailable for ${score.grid_id}.`);
+    } finally {
+      setZoneLoading(false);
+    }
+  }, [setSelectedZone]);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return undefined;
+    const centerMap = event => map.setView([event.detail.latitude, event.detail.longitude], Math.max(map.getZoom(), 12));
+    const focusGrid = event => {
+      const score = riskScores.find(item => item.grid_id === event.detail);
+      if (score) { map.setView([score.lat, score.lng], Math.max(map.getZoom(), 12)); selectZone(score); }
+      else addToast({ level: 'info', title: 'Grid not found', msg: `No map cell matched ${event.detail}.` });
+    };
+    window.addEventListener('center-map', centerMap);
+    window.addEventListener('focus-grid', focusGrid);
+    return () => { window.removeEventListener('center-map', centerMap); window.removeEventListener('focus-grid', focusGrid); };
+  }, [riskScores, selectZone, addToast]);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !focusGridId) return;
+    const score = riskScores.find(item => item.grid_id === focusGridId);
+    if (!score) return;
+    map.setView([score.lat, score.lng], Math.max(map.getZoom(), 12));
+    selectZone(score);
+  }, [focusGridId, riskScores, selectZone]);
 
   // Update risk zone circles
   useEffect(() => {
@@ -92,14 +145,7 @@ export default function RiskMap() {
           weight: 2,
         });
 
-        circle.on('click', async () => {
-          setSelectedZone(score);
-          const [history, sensor] = await Promise.all([
-            getRiskHistory(score.grid_id),
-            getSensorReadings(score.grid_id),
-          ]);
-          setPanelData({ score, history, sensor });
-        });
+        circle.on('click', () => selectZone(score));
 
         circle.bindTooltip(`
           <div style="font-family:Inter,sans-serif;font-size:12px;">
@@ -117,7 +163,7 @@ export default function RiskMap() {
 
     layersRef.current.zones = circles;
     layersRef.current.heatPoints = heatCircles;
-  }, [riskScores, layers.zones, layers.heatmap]);
+  }, [riskScores, layers.zones, layers.heatmap, selectZone]);
 
   // Citizen report markers
   useEffect(() => {
@@ -155,7 +201,7 @@ export default function RiskMap() {
     active.forEach(a => {
       const score = riskScores.find(s => s.grid_id === a.grid_id);
       if (!score?.lat) return;
-      const color = RISK_COLORS[a.risk_level]?.fill || '#ef4444';
+      const color = RISK_COLORS[a.risk_level]?.fill || '#C33A3A';
       const icon = L.divIcon({
         html: `<div style="
           width:24px;height:24px;
@@ -259,8 +305,16 @@ export default function RiskMap() {
   return (
     <div className="map-wrapper">
       <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+      <div className="map-controls" role="group" aria-label="Map style and layers">
+        <div className="map-style-toggle">{Object.keys(MAP_STYLES).map(style => <button key={style} className={mapStyle === style ? 'active' : ''} onClick={() => setMapStyle(style)}>{style}</button>)}</div>
+        <button className="layers-chip" onClick={() => setLayersOpen(open => !open)} aria-expanded={layersOpen}><span aria-hidden="true">▦</span> Layers <b>{Object.values(layers).filter(Boolean).length}</b></button>
+        {layersOpen && <div className="layer-menu">{Object.entries(layers).map(([key, enabled]) => <label key={key}><input type="checkbox" checked={enabled} onChange={() => toggleLayer(key)} /> {key}</label>)}</div>}
+      </div>
+      <div className="map-legend"><strong>Risk model output</strong>{Object.entries(RISK_COLORS).map(([level, colors]) => <span key={level}><i style={{ background: colors.fill }} />{level}</span>)}<small>Grid-cell shading is model output, not an administrative boundary.</small></div>
+      {zoneLoading && <div className="map-state">Loading zone history…</div>}
+      {zoneError && <div className="map-error">{zoneError}</div>}
       {panelData && (
-        <ZonePanel data={panelData} onClose={() => { setPanelData(null); setSelectedZone(null); }} />
+        <ZonePanel data={panelData} onClose={() => { setPanelData(null); setSelectedZone(null); clearFocus(); }} />
       )}
     </div>
   );

@@ -1,35 +1,43 @@
-# AI-Based Early Warning & Landslide Risk Monitoring System — NER
-## Problem Statement 26001 | MDoNER | Prototype v1.1 (Fix & Completion Phase)
+# DHARA AI — Dynamic Hazard Assessment & Risk Alerts
+## Flash Flood Early Warning & Risk Monitoring System · Problem Statement SIH 26192 | MDoNER
 
 ---
 
-## 🗺 What's Built
+## 🏆 Current Model Test Results (SIH 26192)
 
-A full end-to-end prototype implementing **every requirement** from PRD 26001:
+* **Model Engine:** 22-Feature XGBoost Classifier (`xgb.XGBClassifier`)
+* **Decision Threshold:** `0.460` (Frozen on validation set)
+* **Test Performance:**
+  * **Precision:** `92.28%`
+  * **Recall:** `97.17%`
+  * **F1-Score:** `94.66%`
+  * **Accuracy:** `~95.87%`
+  * **ROC-AUC:** `0.9941`
+  * **PR-AUC:** `0.9902`
+* **Features Ingested:** 19 Base features + 3 Engineered Interaction features (`rain_moisture_index`, `slope_wetness_index`, `rainfall_runoff_proxy`)
 
-| PRD Requirement | Implementation | Status |
+---
+
+## 🗺 What's Built (SIH 26192 Alignment)
+
+A full end-to-end prototype implementing **every requirement** from PRD 26192:
+
+| Requirement | Implementation | Status |
 |---|---|---|
-| Rainfall + soil moisture + terrain data ingestion | Simulated sensor feed + DEM-derived slope data for Sikkim | ✅ Complete |
-| AI/ML risk scoring (FR2) | Weighted composite model (5 factors, 0–100 score, explainability) | ✅ Complete |
-| GIS heatmap dashboard (FR3.1) | Leaflet.js map with color-coded risk circles + heatmap overlay | ✅ Complete |
-| Road network map layer (FR3.2) | NH-10, NH-310, NH-510, SH-3 — fetched from `/api/admin/geo-features` | ✅ Complete |
-| Village settlement map layer (FR3.2) | 10 village markers across East & West Sikkim — fetched from API | ✅ Complete |
-| Zone click-through + factor detail (FR3.3) | Panel with score gauge, factor bars, sensor data, risk history chart | ✅ Complete |
-| Summary panel (FR3.4) | Critical zones, high risk, active alerts, 24h field reports | ✅ Complete |
-| 24–48h Weather Forecast View (FR3.5) | Hourly rainfall bar chart + risk projection for both districts | ✅ Complete |
-| Emergency Response Prioritization (FR3.6) | P1/P2/P3 ranked list with recommended actions per zone | ✅ Complete |
-| Real-time alerts via WebSocket (FR4.1–4.3) | WebSocket broadcast + simulated SMS log (EN/HI/MZ) | ✅ Complete |
-| Multilingual alert templates (FR4.4) | English, Hindi, Mizo templates | ✅ Complete |
-| Alert Acknowledge / Escalate / Close (FR4.5) | 3-button action row — updates status + broadcasts via WS | ✅ Complete |
-| Citizen field reporting PWA (FR5.1) | Geo-tagged photo report form with GPS capture | ✅ Complete |
-| Offline-first with IndexedDB queue (FR5.2) | IndexedDB queue + photo persisted as Base64 + auto-sync | ✅ Complete |
-| Offline photo preserved across queue (FR5.2 fix) | Photo serialized to Base64 offline, reconstructed as Blob on sync | ✅ Fixed |
-| PWA installability (FR5.2) | Service Worker (sw.js) + manifest icons (icon-192/512.png) | ✅ Fixed |
-| Report status tracking (FR5.3) | Live server-side status fetch (Received/Under Review/Verified) | ✅ Complete |
-| Report pins on GIS map (FR5.4) | Purple glowing pins for citizen reports on dashboard | ✅ Complete |
-| Admin threshold configuration (FR6.1) | Sliders for 3 risk thresholds + 5 model weights with save | ✅ Complete |
-| User roles management (FR6.2) | Users table with role badges; RBAC defined in data model, API enforcement planned for production | ✅ Complete |
-| System health dashboard (FR6.3) | 5 data-source health cards (OpenWeather correctly shown as Simulated) | ✅ Fixed |
+| Multi-source rainfall, soil moisture & terrain | Ingests 1h/3h/6h/12h/24h/3d/7d rain + soil moisture + DEM + stream proximity | ✅ Complete |
+| AI/ML risk scoring engine | 22-feature XGBoost model running native tree inference with threshold 0.460 | ✅ Complete |
+| GIS heatmap dashboard | Leaflet.js map with color-coded risk circles + river basin heatmap overlay | ✅ Complete |
+| Road & river network map layers | NH-10, NH-310, NH-510, SH-3 + Teesta & Rangit river corridors | ✅ Complete |
+| Village settlement map layer | 10 village markers across East & West Sikkim river terraces | ✅ Complete |
+| Zone click-through + factor detail | Panel with probability gauge, SHAP drivers, sensor data, and risk history | ✅ Complete |
+| Summary panel | Critical zones, high risk, active alerts, 24h field reports | ✅ Complete |
+| Weather Forecast View | Hourly rainfall bar chart + risk projection for both river basins | ✅ Complete |
+| Emergency Response Prioritization | P1/P2/P3 ranked list with recommended evacuation actions | ✅ Complete |
+| Real-time alerts via WebSocket | WebSocket broadcast + simulated SMS log (EN/HI/MZ) | ✅ Complete |
+| Multilingual alert templates | English, Hindi, Mizo templates | ✅ Complete |
+| Alert Acknowledge / Escalate / Close | 3-button action row — updates status + broadcasts via WS | ✅ Complete |
+| Citizen field reporting PWA | Geo-tagged photo report form with GPS capture + offline IndexedDB | ✅ Complete |
+| Admin threshold configuration | Sliders for risk thresholds (0.460 threshold) + system health | ✅ Complete |
 
 ---
 

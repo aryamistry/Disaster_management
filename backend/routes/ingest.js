@@ -3,6 +3,8 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { simulateSensorFeed, computeRiskScores } from '../services/riskEngine.js';
+import { checkAndFireAlerts } from '../services/alertService.js';
+import { broadcast } from '../server.js';
 import { getDB } from '../db/database.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -27,7 +29,7 @@ router.get('/sensor-readings', (req, res) => {
 });
 
 // POST /api/ingest/sensor — ingest a single sensor reading
-router.post('/sensor', (req, res) => {
+router.post('/sensor', async (req, res) => {
   const db = getDB();
   try {
     const { grid_id, rainfall_1h_mm, rainfall_24h_mm, soil_moisture, temperature_c, humidity_pct } = req.body;
@@ -38,18 +40,23 @@ router.post('/sensor', (req, res) => {
     `).run(grid_id, new Date().toISOString(),
            rainfall_1h_mm || 0, rainfall_24h_mm || 0, soil_moisture || 0.3,
            temperature_c || 20, humidity_pct || 70);
-    res.status(201).json({ success: true, message: 'Reading ingested' });
+    const scores = await computeRiskScores();
+    const alerts_fired = checkAndFireAlerts(scores);
+    broadcast('RISK_UPDATE', { scores, alert_count: alerts_fired });
+    res.status(201).json({ success: true, message: 'Reading ingested', scores_computed: scores.length, alerts_fired });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // POST /api/ingest/simulate — run simulation cycle
-router.post('/simulate', (req, res) => {
+router.post('/simulate', async (req, res) => {
   try {
     const readings = simulateSensorFeed();
-    const scores = computeRiskScores();
-    res.json({ success: true, readings_generated: readings.length, scores_computed: scores.length });
+    const scores = await computeRiskScores();
+    const alerts_fired = checkAndFireAlerts(scores);
+    broadcast('RISK_UPDATE', { scores, alert_count: alerts_fired });
+    res.json({ success: true, readings_generated: readings.length, scores_computed: scores.length, alerts_fired });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
