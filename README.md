@@ -292,7 +292,7 @@ Acknowledge / Escalate / Close controls, plus English / Hindi / Mizo alert text.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/CONFUSION.png" alt="Confusion matrix"/></td>
+<td width="50%"><img src="docs/screenshots/CONFUSION MATRIX.png" alt="Confusion matrix"/></td>
 <td width="50%"><img src="docs/screenshots/ROC.png" alt="ROC Curve Final Test"/></td>
 </tr>
 <tr>
@@ -791,11 +791,11 @@ We would rather be clear about what's live than over-claim.
 | Member | Role |
 |---|---|
 | **Briyona Sanghvi (Team Lead)** | **Team Lead · Product & Documentation** ➺ Leads overall coordination and system integration while handling PRD, architecture documentation, technical documentation, presentation, submission requirements and cross-team planning. |
-| **Prachi Yadav** | **AI/ML Lead** | Designed and implemented the core **Flash Flood Prediction Engine** using XGBoost. Responsible for multi-source feature engineering, rainfall/runoff-derived features, chronological train-validation-test methodology, TimeSeriesSplit hyperparameter tuning, class imbalance handling, threshold selection, model evaluation, SHAP/permutation-based explainability. |
+| **Prachi Yadav** | **AI/ML Lead** ➺ Designed and implemented the core **Flash Flood Prediction Engine** using XGBoost. Responsible for multi-source feature engineering, rainfall/runoff-derived features, chronological train-validation-test methodology, TimeSeriesSplit hyperparameter tuning, class imbalance handling, SHAP/permutation-based explainability. |
 | **Parth Lalwani** | **Backend & Data Engineering** ➺ Develops backend services and APIs, manages data ingestion and preprocessing pipelines, and integrates multi-source environmental data with the prediction engine. |
 | **Dia Patel** | **Frontend Development** ➺ Builds the user-facing dashboard, risk indicators, prediction views, alerts and interactive components for communicating flood-risk information clearly. |
 | **Manan Sheth** | **Backend & Data Engineering** ➺ Supports backend architecture, data processing, API integration and communication between the data pipeline, ML model and application layer. |
-| **Aarya Mistry ** | **Frontend & GIS Development** ➺ Develops the GIS-based visualization layer, including interactive maps, hyper-local risk zones, location-based predictions and geographical data layers. |
+| **Aarya Mistry** | **Frontend & GIS Development** ➺ Develops the GIS-based visualization layer, including interactive maps, hyper-local risk zones, location-based predictions and geographical data layers. |
 
 
 ---
