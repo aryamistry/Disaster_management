@@ -266,7 +266,7 @@ Acknowledge / Escalate / Close controls, plus English / Hindi / Mizo alert text.
 <table>
 <tr>
 <td width="50%"><img src="docs/screenshots/ALERT.png" alt="Alert acknowledge escalate close"/></td>
-<td width="50%"><img src="docs/screenshots/ALERT2.png" alt="Alert templates"/></td>
+<td width="50%"><img src="docs/screenshots/ALERT2 (2).png" alt="Alert templates"/></td>
 </tr>
 </table>
 
@@ -310,7 +310,7 @@ Acknowledge / Escalate / Close controls, plus English / Hindi / Mizo alert text.
 <td width="50%"><img src="docs/screenshots/FEATURE-IMPORTANCE.png" alt="Feature importance"/></td>
 </tr>
 <tr>
-<td align="center"><i>Confusion matrix</i></td>
+<td align="center"><i>SHAP Importance</i></td>
 <td align="center"><i>Feature importance</i></td>
 </tr>
 </table>
@@ -790,14 +790,13 @@ We would rather be clear about what's live than over-claim.
 
 | Member | Role |
 |---|---|
-| **Prachi Yadav** | `<role, e.g. AI/ML & Backend>` |
-| **Arya Mistry** | `<role, e.g. Frontend & GIS>` |
-| **Briyona Sanghvi** | `<role, e.g. Product / PRD / Docs>` |
-| `<Member 4>` | `<role>` |
-| `<Member 5>` | `<role>` |
-| `<Member 6>` | `<role>` |
+| **Briyona Sanghvi (Team Lead)** | **Team Lead · Product & Documentation** ➺ Leads overall coordination and system integration while handling PRD, architecture documentation, technical documentation, presentation, submission requirements and cross-team planning. |
+| **Prachi Yadav** | **AI/ML Lead** | Designed and implemented the core **Flash Flood Prediction Engine** using XGBoost. Responsible for multi-source feature engineering, rainfall/runoff-derived features, chronological train-validation-test methodology, TimeSeriesSplit hyperparameter tuning, class imbalance handling, threshold selection, model evaluation, SHAP/permutation-based explainability. |
+| **Parth Lalwani** | **Backend & Data Engineering** ➺ Develops backend services and APIs, manages data ingestion and preprocessing pipelines, and integrates multi-source environmental data with the prediction engine. |
+| **Dia Patel** | **Frontend Development** ➺ Builds the user-facing dashboard, risk indicators, prediction views, alerts and interactive components for communicating flood-risk information clearly. |
+| **Manan Sheth** | **Backend & Data Engineering** ➺ Supports backend architecture, data processing, API integration and communication between the data pipeline, ML model and application layer. |
+| **Aarya Mistry ** | **Frontend & GIS Development** ➺ Develops the GIS-based visualization layer, including interactive maps, hyper-local risk zones, location-based predictions and geographical data layers. |
 
-**Mentor:** `<name, if any>`
 
 ---
 
