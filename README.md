@@ -64,8 +64,8 @@
 | **Theme / Category** | Disaster Management / Software |
 | **Team Name** | Bharat Innovatorz |
 | **Team ID** | 143674 |
-| **Project Name** | **DHARA AI** — *Dynamic Hazard Assessment & Risk Alerts* |
-| **Pilot Area** | Sikkim (East & West districts) — architecture generalises to any hilly state |
+| **Project Name** | **DHARA AI** ➺  *Dynamic Hazard Assessment & Risk Alerts* |
+| **Pilot Area** | Sikkim (East & West districts) ➺  architecture generalises to any hilly state |
 | **Demo Video** | [youtu.be/bZ-st7Up_0Q](https://youtu.be/bZ-st7Up_0Q) |
 
 ---
@@ -91,7 +91,7 @@
 - [⚡ Getting Started](#-getting-started)
 - [🎮 Demo Walkthrough](#-demo-walkthrough)
 - [🧪 Model Training & Evaluation](#-model-training--evaluation)
-- [🚧 Honest Scope — What's Real vs. Simulated](#-honest-scope--whats-real-vs-simulated)
+- [🚧 Honest Scope ➺  What's Real vs. Simulated](#-honest-scope--whats-real-vs-simulated)
 - [🗺️ Roadmap](#️-roadmap)
 - [🌍 Impact & Feasibility](#-impact--feasibility)
 - [📚 Research & References](#-research--references)
@@ -108,21 +108,21 @@
 <tr>
 <td width="50%">
 
-### Hilly India is exposed — and warned too late
+### Hilly India is exposed ➺  and warned too late
 
 Hilly states, including the entire North Eastern Region, suffer recurring **landslides, flash floods, road blockages and slope failures**, driven by intense monsoon rainfall, steep terrain, fragile geology, and unplanned hill cutting. Events strike with **very short warning times**.
 
-- **Reactive, not predictive** — incidents are usually reported *after* the damage.
-- **Coarse resolution** — warnings issue at district/region level, but evacuation decisions are made at **village and ward level**.
-- **Fragmented data** — rainfall, soil, terrain, satellite and historical records live in separate silos.
-- **Last-mile gap** — remote villages with poor connectivity get alerts late, or never.
+- **Reactive, not predictive** ➺  incidents are usually reported *after* the damage.
+- **Coarse resolution** ➺  warnings issue at district/region level, but evacuation decisions are made at **village and ward level**.
+- **Fragmented data** ➺  rainfall, soil, terrain, satellite and historical records live in separate silos.
+- **Last-mile gap** ➺  remote villages with poor connectivity get alerts late, or never.
 
 </td>
 <td width="50%">
 
 ### The core problem
 
-> *"Authorities and communities lack a real-time, predictive, hyper-local early-warning system — one that fuses rainfall, soil moisture, slope stability, historical inventories and IoT/field inputs, and still works in low-connectivity remote areas — to provide sufficient lead time for evacuation."*
+> *"Authorities and communities lack a real-time, predictive, hyper-local early-warning system ➺  one that fuses rainfall, soil moisture, slope stability, historical inventories and IoT/field inputs, and still works in low-connectivity remote areas ➺  to provide sufficient lead time for evacuation."*
 
 **Who is affected**
 
@@ -142,7 +142,7 @@ Hilly states, including the entire North Eastern Region, suffer recurring **land
 
 ## 💡 Our Solution
 
-**DHARA AI** is an end-to-end early-warning platform that turns raw multi-source signals into **village/ward-level risk scores, real-time alerts, and prioritised response plans** — and closes the loop with ground truth from citizens and field officers.
+**DHARA AI** is an end-to-end early-warning platform that turns raw multi-source signals into **village/ward-level risk scores, real-time alerts, and prioritised response plans** ➺ and closes the loop with ground truth from citizens and field officers.
 
 ```
    SENSE                  PREDICT                 ALERT                  RESPOND
@@ -161,11 +161,11 @@ Hilly states, including the entire North Eastern Region, suffer recurring **land
 
 | | |
 |---|---|
-| 🎯 **Hyper-local** | Risk computed on grid cells sized to village/ward boundaries — not just district level |
+| 🎯 **Hyper-local** | Risk computed on grid cells sized to village/ward boundaries ➺  not just district level |
 | 🔍 **Explainable** | Every score shows *which factors drove it* (rainfall, soil, slope, history, citizen signal) |
 | 📡 **Works offline** | PWA queues geo-tagged photo reports in IndexedDB and syncs when the network returns |
 | 🌐 **Multilingual** | Alert templates in English, Hindi and Mizo (text externalised for easy expansion) |
-| 🧑‍🤝‍🧑 **Human-in-the-loop** | Authorities acknowledge / escalate / close alerts — reducing alert fatigue |
+| 🧑‍🤝‍🧑 **Human-in-the-loop** | Authorities acknowledge / escalate / close alerts ➺  reducing alert fatigue |
 | 🔁 **Bridges AI with ground reality** | Citizen reports feed back into the risk score as a live signal |
 
 ---
@@ -214,20 +214,20 @@ Hilly states, including the entire North Eastern Region, suffer recurring **land
 
 > 📌 **Setup note:** save each screenshot into `docs/screenshots/` using the file names below and the images will render automatically.
 
-### 🏠 1. GIS Command Dashboard — Risk Heatmap
+### 🏠 1. GIS Command Dashboard ➺  Risk Heatmap
 Village-level risk circles and heatmap overlay across the Sikkim pilot, with the summary panel (critical zones, high-risk zones, active alerts, 24h field reports).
 
-<img src="docs/screenshots/01_dashboard_heatmap.png" alt="DHARA AI GIS dashboard with risk heatmap" width="100%"/>
+<img src="docs/screenshots/DASHBOARD.png" alt="DHARA AI GIS dashboard with risk heatmap" width="100%"/>
 
 ---
 
-### 🧭 2. Map Layers — Roads, Villages & Report Pins
+### 🧭 2. Map Layers ➺  Roads, Villages & Report Pins
 Toggle road corridors (NH-10 / NH-310 / NH-510 / SH-3), village settlements, active alerts and purple citizen-report pins.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/02_layers_roads.png" alt="Road network layer"/></td>
-<td width="50%"><img src="docs/screenshots/03_layers_villages_reports.png" alt="Villages and citizen report pins"/></td>
+<td width="50%"><img src="docs/screenshots/MAP-LAYERS.png" alt="Road network layer"/></td>
+<td width="50%"><img src="docs/screenshots/MAP-LAYERS2.png" alt="Villages and citizen report pins"/></td>
 </tr>
 <tr>
 <td align="center"><i>Road network overlay</i></td>
@@ -237,10 +237,10 @@ Toggle road corridors (NH-10 / NH-310 / NH-510 / SH-3), village settlements, act
 
 ---
 
-### 🔬 4. Zone Inspector — Explainable Risk
+### 🔬 4. Zone Inspector ➺  Explainable Risk
 Click any zone to see the composite score gauge, contributing-factor bars (rainfall, soil, slope, history, citizen signal), sensor readings and risk history.
 
-<img src="docs/screenshots/04_zone_panel_explainability.png" alt="Zone detail panel with factor breakdown" width="100%"/>
+<img src="docs/screenshots/ZONE-RISK.png" alt="Zone detail panel with factor breakdown" width="100%"/>
 
 ---
 
@@ -249,8 +249,8 @@ One click on **"Simulate Rainfall Spike"** recomputes scores, escalates zones to
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/05_before_spike.png" alt="Before rainfall spike"/></td>
-<td width="50%"><img src="docs/screenshots/06_after_spike_alerts.png" alt="After rainfall spike with alerts"/></td>
+<td width="50%"><img src="docs/screenshots/RAINFALL.png" alt="Before rainfall spike"/></td>
+<td width="50%"><img src="docs/screenshots/RAINFALL2.png" alt="After rainfall spike with alerts"/></td>
 </tr>
 <tr>
 <td align="center"><i>Before: baseline risk</i></td>
@@ -265,8 +265,8 @@ Acknowledge / Escalate / Close controls, plus English / Hindi / Mizo alert text.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/07_alert_actions.png" alt="Alert acknowledge escalate close"/></td>
-<td width="50%"><img src="docs/screenshots/08_multilingual_alerts.png" alt="Multilingual alert templates"/></td>
+<td width="50%"><img src="docs/screenshots/ALERT.png" alt="Alert acknowledge escalate close"/></td>
+<td width="50%"><img src="docs/screenshots/ALERT2.png" alt="Alert templates"/></td>
 </tr>
 </table>
 
@@ -276,51 +276,38 @@ Acknowledge / Escalate / Close controls, plus English / Hindi / Mizo alert text.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/09_forecast_48h.png" alt="48-hour forecast view"/></td>
-<td width="50%"><img src="docs/screenshots/10_response_priority.png" alt="P1 P2 P3 response prioritisation"/></td>
+<td width="50%"><img src="docs/screenshots/RESPONSE.png" alt="P1 P2 P3 response prioritisation"/></td>
+  <td width="50%"><img src="docs/screenshots/MULTILINGUAL.png" alt="Multilingual alert templates"/></td>
 </tr>
 <tr>
-<td align="center"><i>48h hourly rainfall & risk projection</i></td>
-<td align="center"><i>P1 / P2 / P3 response list</i></td>
-</tr>
-</table>
-
----
-
-### 📱 8. Field Reporting PWA — Offline-First
-
-<table>
-<tr>
-<td width="33%"><img src="docs/screenshots/11_pwa_report_form.png" alt="PWA report form with GPS"/></td>
-<td width="33%"><img src="docs/screenshots/12_pwa_offline_queue.png" alt="PWA offline queue"/></td>
-<td width="33%"><img src="docs/screenshots/13_pwa_status_tracking.png" alt="PWA report status tracking"/></td>
-</tr>
-<tr>
-<td align="center"><i>Geo-tagged photo report</i></td>
-<td align="center"><i>Offline queue (IndexedDB)</i></td>
-<td align="center"><i>Received → Under Review → Verified</i></td>
+<td align="center"><i>P1 P2 P3 response prioritisation</i></td>
+<td align="center"><i>Multilingual alert templates</i></td>
 </tr>
 </table>
 
 ---
 
-### ⚙️ 9. Admin Console — Thresholds, Weights & System Health
+
+### 📊 8. Model Results (XGBoost)
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/14_admin_thresholds_weights.png" alt="Admin thresholds and weights sliders"/></td>
-<td width="50%"><img src="docs/screenshots/15_admin_system_health.png" alt="Admin data-source health"/></td>
+<td width="50%"><img src="docs/screenshots/CONFUSION.png" alt="Confusion matrix"/></td>
+<td width="50%"><img src="docs/screenshots/ROC.png" alt="ROC Curve Final Test"/></td>
+</tr>
+<tr>
+<td align="center"><i>Confusion matrix</i></td>
+<td align="center"><i>Roc Curve</i></td>
 </tr>
 </table>
 
 ---
 
-### 📊 10. Model Results (XGBoost)
-
+### 📊 9. Explainability (XAI) (XGBoost)
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/16_model_confusion_matrix.png" alt="Confusion matrix"/></td>
-<td width="50%"><img src="docs/screenshots/17_model_feature_importance.png" alt="Feature importance"/></td>
+<td width="50%"><img src="docs/screenshots/SHAP.png" alt="SHAP Importance"/></td>
+<td width="50%"><img src="docs/screenshots/FEATURE-IMPORTANCE.png" alt="Feature importance"/></td>
 </tr>
 <tr>
 <td align="center"><i>Confusion matrix</i></td>
@@ -342,7 +329,7 @@ flowchart TD
         S5[Citizen & Field Reports<br/>geo-tagged photos]
     end
 
-    subgraph ING["📥 Ingestion Layer — Express REST"]
+    subgraph ING["📥 Ingestion Layer ➺  Express REST"]
         I1[/api/ingest/*/]
         I2[/api/reports/*/]
     end
@@ -389,15 +376,15 @@ flowchart TD
 1. **Cron scheduler** refreshes data → **risk engine recomputes** every grid cell.
 2. Cells crossing the configured threshold generate an **alert** (location, level, recommended action, timestamp).
 3. Alert is **broadcast via WebSocket** to every open dashboard and written to the **SMS log** in EN/HI/MZ.
-4. Officer **acknowledges / escalates / closes** — status changes broadcast back to all clients.
+4. Officer **acknowledges / escalates / closes** ➺  status changes broadcast back to all clients.
 5. Field reports (online or synced later) raise the **citizen-signal factor**, tightening the next recompute.
 
 ### Design principles
 
-- **Modular, cloud-native, open-API** — every layer is a swappable service (rainfall adapter, alert channel, model).
-- **Transparent over opaque** — an auditable weighted score is the primary output; ML validates and blends rather than replaces it.
-- **Offline-first at the edge** — the last mile is the hardest; the PWA and SMS channel are first-class citizens.
-- **Single source of truth for geography** — roads and villages served from one `geo_features.json` via API.
+- **Modular, cloud-native, open-API** ➺  every layer is a swappable service (rainfall adapter, alert channel, model).
+- **Transparent over opaque** ➺  an auditable weighted score is the primary output; ML validates and blends rather than replaces it.
+- **Offline-first at the edge** ➺  the last mile is the hardest; the PWA and SMS channel are first-class citizens.
+- **Single source of truth for geography** ➺  roads and villages served from one `geo_features.json` via API.
 
 ---
 
@@ -430,9 +417,9 @@ Each factor is normalised to **0–1**; the weighted sum is scaled to **0–100*
 | Class | Score | Colour | Meaning |
 |---|:---:|:---:|---|
 | Low | < 30 | 🟢 | Routine monitoring |
-| Medium | ≥ 30 | 🟡 | Watch — pre-position resources |
-| High | ≥ 55 | 🟠 | Advisory — restrict vulnerable roads |
-| Critical | ≥ 75 | 🔴 | Alert — evacuation-level response |
+| Medium | ≥ 30 | 🟡 | Watch ➺  pre-position resources |
+| High | ≥ 55 | 🟠 | Advisory ➺  restrict vulnerable roads |
+| Critical | ≥ 75 | 🔴 | Alert ➺  evacuation-level response |
 
 *(Thresholds are admin-configurable per region.)*
 
@@ -442,7 +429,7 @@ Each factor is normalised to **0–1**; the weighted sum is scaled to **0–100*
 |---|---|
 | **Weighted composite** | Primary, explainable, fast to recompute, easy for officers to trust and tune |
 | **XGBoost classifier** | Trained on historical-incident features; used to validate and calibrate the rule-based score and to expose feature importance |
-| **Explainability (FR2.5)** | Per-zone factor-contribution bars show *why* a zone is Orange or Red — critical for human-in-the-loop trust |
+| **Explainability (FR2.5)** | Per-zone factor-contribution bars show *why* a zone is Orange or Red ➺  critical for human-in-the-loop trust |
 
 ### Hazard coverage
 
@@ -521,8 +508,8 @@ Citizen / Field officer
 | **Real-time** | WebSocket (`ws`) | Instant alert broadcast to all clients |
 | **Scheduler** | Cron in `server.js` | Periodic ingest & risk recompute |
 | **Database** | SQLite (`node:sqlite`, built-in) | Zero-ops prototype; schema is PostGIS-ready |
-| **ML / AI** | Python — scikit-learn, XGBoost | Tabular risk classification, feature importance |
-| **Field App** | PWA — Service Worker + IndexedDB | Offline queue + installability |
+| **ML / AI** | Python ➺  scikit-learn, XGBoost | Tabular risk classification, feature importance |
+| **Field App** | PWA ➺  Service Worker + IndexedDB | Offline queue + installability |
 | **Alerts** | Simulated SMS log (Twilio-ready), WebSocket | Multi-channel dispatch |
 | **Storage** | Local `uploads/reports` (S3-compatible in production) | Geo-tagged photo evidence |
 
@@ -607,7 +594,7 @@ Disaster_management/
 
 ### Prerequisites
 
-- **Node.js v22+** (v24 recommended — uses built-in `node:sqlite`)
+- **Node.js v22+** (v24 recommended ➺  uses built-in `node:sqlite`)
 - *(Optional, for retraining the model)* Python 3.10+
 
 ### 1. Clone
@@ -667,7 +654,7 @@ pip install -r requirements.txt
 
 ## 🎮 Demo Walkthrough
 
-### Scenario — *Monsoon rainfall spike over Sikkim*
+### Scenario ➺  *Monsoon rainfall spike over Sikkim*
 
 | Step | Action | What to notice |
 |:---:|---|---|
@@ -693,13 +680,13 @@ pip install -r requirements.txt
 
 ## 🧪 Model Training & Evaluation
 
-> ✏️ **Team: fill in the values below from `results/` before final submission — judges look for real numbers.**
+> ✏️ **Team: fill in the values below from `results/` before final submission ➺  judges look for real numbers.**
 
 | Item | Value |
 |---|---|
 | Model | XGBoost classifier (blended with rule-based composite) |
 | Features | Rainfall intensity, soil saturation proxy, slope angle, historical incident density, citizen-report signal *(see `models/` feature list)* |
-| Training data | `<N>` samples — `<real / synthetic / mixed>` |
+| Training data | `<N>` samples ➺  `<real / synthetic / mixed>` |
 | Train / validation split | `<e.g. 80 / 20, stratified>` |
 | Accuracy | `<xx.x %>` |
 | Precision / Recall / F1 (High+Critical) | `<xx> / <xx> / <xx>` |
@@ -709,13 +696,13 @@ pip install -r requirements.txt
 
 ### Evaluation principles
 
-- **Recall on High/Critical matters most** — a missed critical zone costs lives; a false alarm costs trust. Thresholds are therefore admin-tunable per region.
-- **Explainability first** — feature-importance plots (`results/`) accompany every model run.
-- **Label transparently** — simulated inputs are always identified as simulated in the UI and in this README.
+- **Recall on High/Critical matters most** ➺  a missed critical zone costs lives; a false alarm costs trust. Thresholds are therefore admin-tunable per region.
+- **Explainability first** ➺  feature-importance plots (`results/`) accompany every model run.
+- **Label transparently** ➺  simulated inputs are always identified as simulated in the UI and in this README.
 
 ---
 
-## 🚧 Honest Scope — What's Real vs. Simulated
+## 🚧 Honest Scope ➺  What's Real vs. Simulated
 
 We would rather be clear about what's live than over-claim.
 
@@ -739,7 +726,7 @@ We would rather be clear about what's live than over-claim.
 ## 🗺️ Roadmap
 
 - [ ] **Live IMD rainfall** + Doppler-radar/gauge ingestion
-- [ ] **Real IoT deployment** — soil-moisture probes, tiltmeters, piezometers on critical slopes
+- [ ] **Real IoT deployment** ➺  soil-moisture probes, tiltmeters, piezometers on critical slopes
 - [ ] **Sentinel-2 / InSAR** deformation overlays
 - [ ] **NDMA Sachet** & State EOC integration for official alert dispatch
 - [ ] **Live Twilio SMS** + Firebase push notifications
@@ -768,7 +755,7 @@ We would rather be clear about what's live than over-claim.
 | Dimension | Assessment |
 |---|---|
 | **Technical** | Open-source stack, public datasets, proven ML methods |
-| **Economic** | Low cost — cloud + open data; no hardware needed for the prototype |
+| **Economic** | Low cost ➺  cloud + open data; no hardware needed for the prototype |
 | **Operational** | Simple UI; offline sync; fits existing government & community networks |
 | **Social / environmental** | Protects lives, reduces displacement, builds climate resilience |
 
@@ -816,7 +803,7 @@ We would rather be clear about what's live than over-claim.
 
 ## 📄 License
 
-Released under the **MIT License** — see [LICENSE](LICENSE).
+Released under the **MIT License** ➺  see [LICENSE](LICENSE).
 
 <div align="center">
 
@@ -824,7 +811,7 @@ Released under the **MIT License** — see [LICENSE](LICENSE).
 
 *Built for **Smart India Hackathon 2026** · PS **SIH26192** · Team **Bharat Innovatorz** (ID 143674)*
 
-**🌧️ DHARA AI — turning data into forecasts, and forecasts into lives saved. 🏔️**
+**🌧️ DHARA AI ➺  turning data into forecasts, and forecasts into lives saved. 🏔️**
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer" width="100%"/>
 
