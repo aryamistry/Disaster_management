@@ -1,7 +1,8 @@
 <div align="center">
 
 <!-- BANNER -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=Dhara AI&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=Hyper-Local%20Landslide-Flash%20Flood%20Early%20Warning%20Engine%20for%20India's%20Hilly%20Regions&descSize=18&descAlignY=58" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=Dhara-AI🌧️&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=Hyper-Local%20Landslide-Flash%20Flood%20Early%20Warning%20System%20for%20India's%20Hilly%20Regions&descSize=18&descAlignY=58" width="100%"/>
+
 
 
 ### 🌧️ Hyper-Local Landslide & Flash Flood Early Warning System for India's Hilly Regions
