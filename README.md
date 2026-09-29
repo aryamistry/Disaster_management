@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=200&section=header&text=DHARA%20AI&fontSize=56&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=Dynamic%20Hazard%20Assessment%20%26%20Risk%20Alerts&descSize=20&descAlignY=58" width="100%"/>
+<!-- BANNER -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=Dhara AI&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=Hyper-Local%20Landslide-Flash%20Flood%20Early%20Warning%20Engine%20for%20India's%20Hilly%20Regions&descSize=18&descAlignY=58" width="100%"/>
+
 
 ### 🌧️ Hyper-Local Landslide & Flash Flood Early Warning System for India's Hilly Regions
 
@@ -791,11 +793,11 @@ We would rather be clear about what's live than over-claim.
 | Member | Role |
 |---|---|
 | **Briyona Sanghvi (Team Lead)** | **Team Lead · Product & Documentation** ➺ Leads overall coordination and system integration while handling PRD, architecture documentation, technical documentation, presentation, submission requirements and cross-team planning. |
-| **Prachi Yadav** | **AI/ML Lead** ➺ Designed and implemented the core **Flash Flood Prediction Engine** using XGBoost. Responsible for multi-source feature engineering, rainfall/runoff-derived features, chronological train-validation-test methodology, TimeSeriesSplit hyperparameter tuning, class imbalance handling, SHAP/permutation-based explainability. |
 | **Parth Lalwani** | **Backend & Data Engineering** ➺ Develops backend services and APIs, manages data ingestion and preprocessing pipelines, and integrates multi-source environmental data with the prediction engine. |
+| **Aarya Mistry** | **Frontend & GIS Development** ➺ Develops the GIS-based visualization layer, including interactive maps, hyper-local risk zones, location-based predictions and geographical data layers. |
 | **Dia Patel** | **Frontend Development** ➺ Builds the user-facing dashboard, risk indicators, prediction views, alerts and interactive components for communicating flood-risk information clearly. |
 | **Manan Sheth** | **Backend & Data Engineering** ➺ Supports backend architecture, data processing, API integration and communication between the data pipeline, ML model and application layer. |
-| **Aarya Mistry** | **Frontend & GIS Development** ➺ Develops the GIS-based visualization layer, including interactive maps, hyper-local risk zones, location-based predictions and geographical data layers. |
+| **Prachi Yadav** | **AI/ML Lead** ➺ Designed and implemented the core **Flash Flood Prediction Engine** using XGBoost. Responsible for multi-source feature engineering, rainfall/runoff-derived features, chronological train-validation-test methodology, TimeSeriesSplit hyperparameter tuning, class imbalance handling, SHAP/permutation-based explainability. |
 
 
 ---
